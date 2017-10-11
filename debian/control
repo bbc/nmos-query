@@ -1,8 +1,8 @@
 Source: nmos-query
-Maintainer: Sean Casey <sean.casey@rd.bbc.co.uk>
+Maintainer: Simon Rankine <Simon.Rankine@bbc.co.uk>
 Section: python
 Priority: optional
-Build-Depends: python-all (>= 2.6.6-3), debhelper (>= 7), dh-python
+Build-Depends: python-all (>= 2.6.6-3), debhelper (>= 7), dh-python, python-setuptools
 Standards-Version: 3.9.1
 
 Package: nmos-query
