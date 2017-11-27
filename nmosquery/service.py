@@ -27,9 +27,13 @@ from nmosquery.api import QueryServiceAPI
 from nmoscommon.utils import getLocalIP
 
 reg = {'host': 'localhost', 'port': 4001}
+HOST = getLocalIP()
 WS_PORT = 8870
-DNS_SD_PORT = 80
-
+DNS_SD_HTTP_PORT = 80
+DNS_SD_HTTPS_PORT = 443
+DNS_SD_NAME = 'query_' + str(HOST)
+DNS_SD_TYPE = '_nmos-query._tcp'
+API_VERSIONS = ["v1.0", "v1.1", "v1.2"]
 
 class QueryService:
 
@@ -37,10 +41,14 @@ class QueryService:
         self.running = False
         self.logger = Logger("regquery")
         self.logger.writeDebug('Running QueryService')
-        self.config = {"priority": 0}
+        # HTTPS under test only at present
+        # enabled = Use HTTPS only in all URLs and mDNS adverts
+        # disabled = Use HTTP only in all URLs and mDNS adverts
+        # mixed = Use HTTP in all URLs, but additionally advertise an HTTPS endpoint for discovery of this API only
+        self.config = {"priority": 100, "https_mode": "disabled"}
         self._load_config()
         self.mdns = MDNSEngine()
-        self.httpServer = HttpServer(QueryServiceAPI, WS_PORT, '0.0.0.0', api_args=[self.logger])
+        self.httpServer = HttpServer(QueryServiceAPI, WS_PORT, '0.0.0.0', api_args=[self.logger, self.config])
 
     def start(self):
         if self.running:
@@ -49,8 +57,6 @@ class QueryService:
 
         self.running = True
         self.mdns.start()
-
-        HOST = getLocalIP()
 
         self.logger.writeDebug('Running web socket server on %i' % WS_PORT)
 
@@ -69,10 +75,16 @@ class QueryService:
         if not str(priority).isdigit() or priority < 100:
             priority = 0
 
-        self.mdns.register('query_' + str(HOST), '_nmos-query._tcp', DNS_SD_PORT,
-                           {"pri": priority,
-                            "api_ver": "v1.0,v1.1,v1.2",
-                            "api_proto": "http"})
+        if self.config["https_mode"] != "enabled":
+            self.mdns.register(DNS_SD_NAME + "_http", DNS_SD_TYPE, DNS_SD_HTTP_PORT,
+                               {"pri": priority,
+                                "api_ver": ",".join(API_VERSIONS),
+                                "api_proto": "http"})
+        if self.config["https_mode"] != "disabled":
+            self.mdns.register(DNS_SD_NAME + "_https", DNS_SD_TYPE, DNS_SD_HTTPS_PORT,
+                               {"pri": priority,
+                                "api_ver": ",".join(API_VERSIONS),
+                                "api_proto": "https"})
 
     def run(self):
         self.running = True
@@ -94,7 +106,7 @@ class QueryService:
 
     def _load_config(self):
         try:
-            config_file = "/etc/nmos-query/config.json"
+            config_file = "/etc/ips-regquery/config.json"
             if os.path.isfile(config_file):
                 f = open(config_file, 'r')
                 extra_config = json.loads(f.read())

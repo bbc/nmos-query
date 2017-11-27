@@ -22,17 +22,18 @@ QUERY_APINAME = "query"
 
 class QueryServiceAPI(WebAPI):
 
-    def __init__(self, logger):
+    def __init__(self, logger, config):
         super(QueryServiceAPI, self).__init__()
         self.logger = logger
+        self.config = config
 
-        self.api_v1_0 = v1_0.Routes(logger)
+        self.api_v1_0 = v1_0.Routes(logger, config)
         self.add_routes(self.api_v1_0, basepath="/{}/{}/v1.0".format(QUERY_APINAMESPACE, QUERY_APINAME))
 
-        self.api_v1_1 = v1_1.Routes(logger)
+        self.api_v1_1 = v1_1.Routes(logger, config)
         self.add_routes(self.api_v1_1, basepath="/{}/{}/v1.1".format(QUERY_APINAMESPACE, QUERY_APINAME))
 
-        self.api_v1_2 = v1_2.Routes(logger)
+        self.api_v1_2 = v1_2.Routes(logger, config)
         self.add_routes(self.api_v1_2, basepath="/{}/{}/v1.2".format(QUERY_APINAMESPACE, QUERY_APINAME))
 
     @route('/')
