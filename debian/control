@@ -1,12 +1,12 @@
-Source: nmos-query
-Maintainer: Simon Rankine <Simon.Rankine@bbc.co.uk>
+Source: python-registryquery
+Maintainer: Peter Brightwell <Peter.Brightwell@bbc.co.uk>
 Section: python
 Priority: optional
-Build-Depends: python-all (>= 2.6.6-3), debhelper (>= 7), dh-python, python-setuptools
-Standards-Version: 3.9.1
+Build-Depends: python-all (>= 2.6.6-3), debhelper (>= 7), dh-python, python-setuptools, dh-systemd (>= 1.5), dh-apache2
+Standards-Version: 3.9.7
 
-Package: nmos-query
+Package: python-registryquery
 Architecture: all
-Depends: ${misc:Depends}, ${python:Depends}, etcd, reverse-proxy, nmos-common
+Depends: ${misc:Depends}, ${python:Depends}, etcd, nmos-reverse-proxy, python-nmoscommon, python-flask, python-ws4py, python-requests (>= 0.9.3), etcd, python-pybonjour
 Description: Provides NMOS Query API functionality
  See wwww.nmos.tv for more details.

@@ -88,8 +88,6 @@ setup(name = "nmosquery",
       scripts = [
                 ],
       data_files=[
-          ('/etc/nmosquery',        ['etc/config.json']),
-          ('/lib/systemd/system', ['lib/systemd/system/nmosquery.service']),
           ('/usr/bin', ['bin/nmosquery'])
       ],
       long_description = """
