@@ -1,5 +1,5 @@
 #!/bin/sh
-# postinst script for nmos-query
+# postinst script for python-registryquery
 #
 # see: dh_installdeb(1)
 
