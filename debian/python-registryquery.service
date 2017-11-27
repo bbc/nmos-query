@@ -4,4 +4,5 @@ Wants=network-online.target
 After=network-online.target
 
 [Service]
+Alias=nmosregistration.service
 ExecStart=/usr/bin/nmosquery

@@ -19,7 +19,7 @@ set -e
 
 case "$1" in
     remove|upgrade|deconfigure)
-	service nmosquery stop || true
+	service python-registryquery stop || true
     ;;
 
     failed-upgrade)
