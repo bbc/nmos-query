@@ -23,8 +23,9 @@ from nmosquery.common.query import QueryCommon
 
 class RoutesCommon(object):
 
-    def __init__(self, logger, api_version="v1.0"):
+    def __init__(self, logger, config, api_version="v1.0"):
         self.logger = logger
+        self.config = config
         self.query = QueryCommon(logger=self.logger)
         self.on_websocket_connect = self.websocket_opened
         self.api_version = api_version
@@ -32,26 +33,26 @@ class RoutesCommon(object):
     @route('/')
     def __versionindex(self):
         obj = ["subscriptions/"]
-        for nmos_type in VALID_TYPES:
-            obj.append(nmos_type+"/")
+        for ips_type in VALID_TYPES:
+            obj.append(ips_type+"/")
         return (200, obj)
 
-    @route('/<nmos_type>/')
-    def __nmos_type(self, nmos_type):
-        self.logger.writeDebug('nmos_type')
-        if nmos_type not in VALID_TYPES:
+    @route('/<ips_type>/')
+    def __ips_type(self, ips_type):
+        self.logger.writeDebug('ips_type')
+        if ips_type not in VALID_TYPES:
             abort(404)
-        obj = self.query.get_data_for_path('/{}'.format(nmos_type), request.args)
+        obj = self.query.get_data_for_path('/{}'.format(ips_type), request.args)
         self.logger.writeDebug('obj {}'.format(obj))
         if not obj:
             obj = []
         return (200, obj)
 
-    @route('/<nmos_type>/<el_id>/')
-    def __el_id(self, nmos_type, el_id):
-        if nmos_type not in VALID_TYPES:
+    @route('/<ips_type>/<el_id>/')
+    def __el_id(self, ips_type, el_id):
+        if ips_type not in VALID_TYPES:
             abort(404)
-        obj = self.query.get_data_for_path('/{}/{}'.format(nmos_type, el_id), request.args)
+        obj = self.query.get_data_for_path('/{}/{}'.format(ips_type, el_id), request.args)
         if not obj:
             return(404, '')
         if isinstance(obj, list) and len(obj) >= 1:
@@ -64,6 +65,8 @@ class RoutesCommon(object):
             data = json.loads(request.data)
         except ValueError:
             abort(400, "No data supplied")
+        if "secure" not in data and self.config["https_mode"] == "enabled":
+            data["secure"] = True
         obj, created = self.query.post_ws_subscribers(data)
         return (201 if created else 200, obj)
 

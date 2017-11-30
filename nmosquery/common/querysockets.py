@@ -24,7 +24,7 @@ from nmoscommon import nmoscommonconfig
 
 
 class QuerySocketCommon(object):
-    def __init__(self, resource_path, ws_port, rate=100, persist=False, params=None, logger=None, api_version="v1.0"):
+    def __init__(self, resource_path, ws_port, rate=100, persist=False, params=None, secure=False, logger=None, api_version="v1.0"):
         if params is None:
             params = {}
         self.logger = logger
@@ -32,6 +32,7 @@ class QuerySocketCommon(object):
         self.ws_port = ws_port
         self.subscribers = []
         self.api_version = api_version
+        self.secure = secure
         self.ws_href = self.gen_ws_href()
         self.resource_path = resource_path
         self.params = params
@@ -39,10 +40,13 @@ class QuerySocketCommon(object):
         self.persist = persist
 
     def gen_ws_href(self):
-        if nmoscommonconfig.config.get('prefer_ipv6',False) == False:
-            href = 'ws://{}/x-nmos/query/{}/ws/?uid={}'.format(getLocalIP(), self.api_version, self.uuid)
+        scheme = "ws"
+        if self.secure:
+            scheme = "wss"
+        if ipppythonconfig.config.get('prefer_ipv6',False) == False:
+            href = '{}://{}/x-nmos/query/{}/ws/?uid={}'.format(scheme, getLocalIP(), self.api_version, self.uuid)
         else:
-            href = 'ws://[{}]/x-nmos/query/{}/ws/?uid={}'.format(getLocalIP(), self.api_version, self.uuid)
+            href = '{}://[{}]/x-nmos/query/{}/ws/?uid={}'.format(scheme, getLocalIP(), self.api_version, self.uuid)
         return href
 
     def add_subscriber(self, ws):
@@ -74,6 +78,7 @@ class QuerySocketsCommon(object):
                            persist=opts.get('persist', False),
                            resource_path=opts.get('resource_path', ''),
                            params=opts.get('params', {}),
+                           secure=opts.get('secure', False),
                            logger=self.logger,
                            api_version=opts.get('api_version', 'v1.0'))
         self.sockets.append(sock)

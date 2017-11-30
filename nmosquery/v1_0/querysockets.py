@@ -16,8 +16,7 @@ from nmosquery.common.querysockets import QuerySocketCommon, QuerySocketsCommon,
 
 class QuerySocket(QuerySocketCommon):
     def __init__(self, resource_path, ws_port, rate=100, persist=False, params=None, secure=False, logger=None):
-        super(QuerySocket, self).__init__(resource_path, ws_port, rate, persist, params, logger, "v1.0")
-        self.secure = secure
+        super(QuerySocket, self).__init__(resource_path, ws_port, rate, persist, params, secure, logger, "v1.0")
 
 class QuerySockets(QuerySocketsCommon):
     def __init__(self, ws_port, logger=None):
@@ -30,6 +29,7 @@ class QuerySockets(QuerySocketsCommon):
                            persist=opts.get('persist', False),
                            resource_path=opts.get('resource_path', ''),
                            params=opts.get('params', {}),
+                           secure=opts.get('secure', False),
                            logger=self.logger)
         self.sockets.append(sock)
         self.logger.writeDebug('Number of active sockets: {}'.format(len(self.sockets)))
