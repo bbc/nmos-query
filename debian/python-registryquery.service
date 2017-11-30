@@ -1,8 +1,12 @@
 [Unit]
 Description=nmosquery
-Wants=network-online.target
-After=network-online.target
+Wants=network-online.target apache2.service
+After=network.target network-online.target apache2.service
 
 [Service]
-Alias=nmosregistration.service
+User=ipstudio
 ExecStart=/usr/bin/nmosquery
+
+[Install]
+Alias=nmosregistration.service
+WantedBy=multi-user.target

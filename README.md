@@ -20,12 +20,6 @@ sudo python setup.py install
 
 ## Running the Query API
 
-If you wish the Query API to run automatically as a service a symbolic link must be added to the system. In order to do this, run the following command in bash.
-
-```bash
-    ln -s /lib/systemd/system/nmosquery.service /etc/systemd/system/multi-user.target.wants/nmosquery.service
-```
-
 ### Non-blocking
 
 Run the following script to start the Query API in a non-blocking manner, and then stop it again at a later point:
