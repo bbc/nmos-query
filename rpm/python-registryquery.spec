@@ -47,10 +47,10 @@ install -d -m 0755 %{buildroot}%{_sysconfdir}/ips-regquery
 install -D -p -m 0644 etc/config.json %{buildroot}%{_sysconfdir}/ips-regquery/config.json
 
 # Install systemd unit file
-install -D -p -m 0644 %{SOURCE2} %{buildroot}%{_unitdir}/ips-regquery.service
+install -D -p -m 0644 %{SOURCE1} %{buildroot}%{_unitdir}/ips-regquery.service
 
 # Install Apache config file
-install -D -p -m 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/httpd/conf.d/ips-apis/ips-api-nmosquery.conf
+install -D -p -m 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/httpd/conf.d/ips-apis/ips-api-nmosquery.conf
 
 # Create log dir
 mkdir -p %{buildroot}/%{_localstatedir}/log/ipstudio
