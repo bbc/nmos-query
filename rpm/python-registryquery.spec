@@ -1,7 +1,7 @@
 %global module_name ipsregistryquery
 
 Name: 			python-registryquery
-Version: 		0.0.1
+Version: 		0.1.0
 Release: 		1%{?dist}
 License: 		Internal Licence
 Summary: 		API interface to IP Studio service registry
