@@ -75,11 +75,11 @@ systemctl stop ips-regquery
 rm -rf %{buildroot}
 
 %files
-%{_bindir}/regquery
+%{_bindir}/nmosquery
 
 %{_unitdir}/ips-regquery.service
 
-%{python2_sitelib}/ippregistryquery
+%{python2_sitelib}/nmosquery
 %{python2_sitelib}/%{module_name}-%{version}*.egg-info
 
 %defattr(-,ipstudio, ipstudio,-)
