@@ -90,5 +90,5 @@ rm -rf %{buildroot}
 
 
 %changelog
-* Tue Apr 25 2017 Sam Nicholson <sam.nicholson@bbc.co.uk> - 0.0.1-1
+* Tue Apr 25 2017 Sam Nicholson <sam.nicholson@bbc.co.uk> - 0.1.0-1
 - Initial packaging for RPM
