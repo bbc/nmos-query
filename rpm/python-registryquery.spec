@@ -6,7 +6,7 @@ Release: 		1%{?dist}
 License: 		Internal Licence
 Summary: 		API interface to IP Studio service registry
 
-Source0: 		ipsregistryquery-%{version}.tar.gz
+Source0: 		nmosquery-%{version}.tar.gz
 
 BuildArch:      noarch
 
