@@ -9,4 +9,5 @@ ExecStart=/usr/bin/nmosquery
 
 [Install]
 Alias=nmosregistration.service
+Alias=ips-regquery.service
 WantedBy=multi-user.target
