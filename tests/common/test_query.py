@@ -23,6 +23,8 @@ from nmosquery import version_transforms
 
 import copy
 
+from uuid import *
+
 API_VERSIONS = [ "v1.0", "v1.1", "v1.2" ]
 
 node_data = {
@@ -263,7 +265,9 @@ class TestQueryCommon(unittest.TestCase):
                 [ "/", {}, (200, json.dumps({ "potatoes" : [ "a", "list", "of", "potatoes" ] })), [] ],
                 [ "/", { }, (200, etcd_test_data_string), [ sender_data_versions[v], flow_data_versions[v] ] + ([flow_v1_0_data_versions[v]] if v == "v1.0" else []) ],
                 [ "/", { "query.downgrade" : "v1.0" }, (200, etcd_test_data_string), [ sender_data_versions[v], flow_data_versions[v], flow_v1_0_data_versions[v] ] ],
+                [ "/flows/", { }, (404, None), None ],
                 [ "/flows/", { }, (200, etcd_test_data_string), [ flow_data_versions[v] ] + ([flow_v1_0_data_versions[v]] if v == "v1.0" else []) ],
+                [ "/senders/", { }, (404, None), None ],
                 [ "/senders/", { }, (200, etcd_test_data_string), [ sender_data_versions[v] ] ],
                 ]
 
@@ -281,3 +285,104 @@ when we expected:
 {}
 
 """.format(path, args, v, (code, text), json.dumps(r, indent=4), json.dumps(expected, indent=4)))
+
+    @mock.patch('nmosquery.common.querysockets.getLocalIP', return_value="192.168.0.23")
+    def test_get_ws_subscribers(self, getLocalIP):
+        def websocket_details(id, resource_path=""):
+            return {
+                "max_update_rate_ms": 100,
+                "resource_path": resource_path,
+                "params": {},
+                "persist": False,
+                "ws_href": "ws://192.168.0.23/x-nmos/query/v1.0/ws/?uid={!s}".format(id),
+                "id": str(id)
+                }
+
+        # socket_id, sockets to add before testing, uuids to assign to created sockets in order, expected response
+        tests = [
+            [
+                None,
+                [],
+                [],
+                []
+            ],
+            [
+                None,
+                [ {}, {} ],
+                [ uuid.UUID("bfdc0ede-e59d-11e7-bb51-1bf30cb6760d"), uuid.UUID("ef2a9916-e59e-11e7-b645-e37a6121621f") ],
+                [ websocket_details("bfdc0ede-e59d-11e7-bb51-1bf30cb6760d"), websocket_details("ef2a9916-e59e-11e7-b645-e37a6121621f") ]
+            ],
+            [
+                "bfdc0ede-e59d-11e7-bb51-1bf30cb6760d",
+                [ {}, {} ],
+                [ uuid.UUID("bfdc0ede-e59d-11e7-bb51-1bf30cb6760d"), uuid.UUID("ef2a9916-e59e-11e7-b645-e37a6121621f") ],
+                websocket_details("bfdc0ede-e59d-11e7-bb51-1bf30cb6760d")
+            ],
+        ]
+
+        for (socket_id, sockets, uuids, expected) in tests:
+            for v in API_VERSIONS:
+                self.setup(v)
+
+                with mock.patch('uuid.uuid4', side_effect = uuids):
+                    for socket in sockets:
+                        self.UUT.query_sockets.add_sock(socket)
+                rval = self.UUT.get_ws_subscribers(socket_id=socket_id)
+                msg="""When calling get_ws_subscribers(socket_id={!r}) on version {} after adding sockets:
+
+{}
+
+with uuids:
+
+{}
+
+Got:
+
+{}
+
+Expected:
+
+{}
+
+""".format(socket_id, v, json.dumps(sockets, indent=4), json.dumps([ str(u) for u in uuids ], indent=4), json.dumps(rval, indent=4), json.dumps(expected, indent=4))
+                if isinstance(rval, list):
+                    self.assertItemsEqual(rval, expected, msg=msg)
+                else:
+                    self.assertEqual(rval, expected, msg=msg)
+
+    @mock.patch('nmosquery.common.querysockets.getLocalIP', return_value="192.168.0.23")
+    def test_post_ws_subscribers_and_delete_ws_subscribers(self, getLocalIP):
+        def websocket_details(id, resource_path="", persist=False):
+            return {
+                "max_update_rate_ms": 100,
+                "resource_path": resource_path,
+                "params": {},
+                "persist": persist,
+                "ws_href": "ws://192.168.0.23/x-nmos/query/v1.0/ws/?uid={!s}".format(id),
+                "id": str(id)
+                }
+
+        for v in API_VERSIONS:
+            self.setup(v)
+
+            with mock.patch('uuid.uuid4', side_effect = [ uuid.UUID("bfdc0ede-e59d-11e7-bb51-1bf30cb6760d"),
+                                                          uuid.UUID("ef2a9916-e59e-11e7-b645-e37a6121621f"),
+                                                          uuid.UUID("38d918c6-e5a9-11e7-8095-a784b5bb5319") ] ):
+                (obj, created) = self.UUT.post_ws_subscribers({ 'resource_path' : '/' })
+                self.assertEqual(obj, websocket_details("bfdc0ede-e59d-11e7-bb51-1bf30cb6760d", resource_path='/'))
+                self.assertTrue(created)
+
+                (obj, created) = self.UUT.post_ws_subscribers({ 'resource_path' : '/' })
+                self.assertEqual(obj, websocket_details("bfdc0ede-e59d-11e7-bb51-1bf30cb6760d", resource_path='/'))
+                self.assertFalse(created)
+
+                (obj, created) = self.UUT.post_ws_subscribers({ 'resource_path' : '/dummy/', 'persist' : True })
+                self.assertEqual(obj, websocket_details("ef2a9916-e59e-11e7-b645-e37a6121621f", resource_path='/dummy/', persist=True))
+                self.assertTrue(created)
+
+                rval = self.UUT.delete_ws_subscribers("ef2a9916-e59e-11e7-b645-e37a6121621f")
+                self.assertTrue(rval)
+
+                (obj, created) = self.UUT.post_ws_subscribers({ 'resource_path' : '/dummy/' })
+                self.assertEqual(obj, websocket_details("38d918c6-e5a9-11e7-8095-a784b5bb5319", resource_path='/dummy/'))
+                self.assertTrue(created)
