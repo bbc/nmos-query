@@ -7,7 +7,7 @@ For those wishing to experiment or familiarise themselves with the APIs the BBC 
 This implementation was written by the BBC as part of our work on the IS-04 specification, and is research software. It has been open sourced to provide an example of the API, but has not been designed for use in production.
 
 ## Bugs and Contributions
-Please file any bugs in the github issue tracker for this repository. We welcome contributions in the form of pull requests to this repository, but we would ask that you please take note of our contribution policy in [CONTRIBUTING.md].
+Please file any bugs in the github issue tracker for this repository. We welcome contributions in the form of pull requests to this repository, but we would ask that you please take note of our contribution policy in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Installing with Python
 
