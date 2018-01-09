@@ -43,7 +43,7 @@ class QuerySocketCommon(object):
         scheme = "ws"
         if self.secure:
             scheme = "wss"
-        if ipppythonconfig.config.get('prefer_ipv6',False) == False:
+        if nmoscommonconfig.config.get('prefer_ipv6',False) == False:
             href = '{}://{}/x-nmos/query/{}/ws/?uid={}'.format(scheme, getLocalIP(), self.api_version, self.uuid)
         else:
             href = '{}://[{}]/x-nmos/query/{}/ws/?uid={}'.format(scheme, getLocalIP(), self.api_version, self.uuid)

@@ -102,7 +102,8 @@ class TestQueryServiceAPI(unittest.TestCase):
                         'v1.1' : v1_1Query.return_value,
                         'v1.2' : v1_2Query.return_value,}
         self.logger = mock.MagicMock(name="logger")
-        self.UUT = QueryServiceAPI(self.logger)
+        self.config = mock.MagicMock(dict)
+        self.UUT = QueryServiceAPI(self.logger, self.config)
 
     def test_init(self):
         self.assertIn('/',              self.UUT.routes)
@@ -129,9 +130,12 @@ class TestQueryServiceAPI(unittest.TestCase):
     # These additional methods test out routes added by the common.routes.RoutesCommon class
     def test_versionindex(self):
         for v in ['v1.0', 'v1.1', 'v1.2' ]:
-            self.assertEqual(self.UUT.routes['/x-nmos/query/' + v + '/']['GET'][0](), (200, ["subscriptions/"] + [ nmos_type + '/' for nmos_type in VALID_TYPES ]))
+            self.assertEqual(self.UUT.routes['/x-nmos/query/' + v + '/']['GET'][0](), (200, ["subscriptions/"] + [ ips_type + '/' for ips_type in VALID_TYPES ]))
 
     def assert_route_returns_value(self, v, path, args, expected, request, method='GET'):
+        self.assertIn(path, self.UUT.routes)
+        self.assertIn(method, self.UUT.routes[path])
+        self.assertGreater(len(self.UUT.routes), 0)
         rval = self.UUT.routes[path][method][0](*args)
         self.assertEqual(rval, expected, msg="""
 When checking the result of a """ + method + """ with path """ + path + """ the result is not as expected:
@@ -147,24 +151,24 @@ Expected:
 
     @mock.patch('nmosquery.common.routes.abort', side_effect=AbortException)
     @mock.patch('nmosquery.common.routes.request')
-    def test_nmos_type(self, request, abort):
+    def test_ips_type(self, request, abort):
         """This method should call through to the relevent query"""
         for v in ['v1.0', 'v1.1', 'v1.2' ]:
             for t in VALID_TYPES:
                 self.queries[v].get_data_for_path.reset_mock()
                 self.queries[v].get_data_for_path.return_value = mock.DEFAULT
-                self.assert_route_returns_value(v, '/x-nmos/query/' + v + '/<nmos_type>/', [t,], (200, self.queries[v].get_data_for_path.return_value), request)
+                self.assert_route_returns_value(v, '/x-nmos/query/' + v + '/<ips_type>/', [t,], (200, self.queries[v].get_data_for_path.return_value), request)
                 self.queries[v].get_data_for_path.assert_called_once_with('/' + t, request.args)
 
                 self.queries[v].get_data_for_path.reset_mock()
                 self.queries[v].get_data_for_path.return_value = None
-                self.assert_route_returns_value(v, '/x-nmos/query/' + v + '/<nmos_type>/', [t,], (200, []), request)
+                self.assert_route_returns_value(v, '/x-nmos/query/' + v + '/<ips_type>/', [t,], (200, []), request)
                 self.queries[v].get_data_for_path.assert_called_once_with('/' + t, request.args)
 
             if True:
                 abort.reset_mock()
                 with self.assertRaises(AbortException):
-                    self.UUT.routes['/x-nmos/query/' + v + '/<nmos_type>/']['GET'][0]('potato')
+                    self.UUT.routes['/x-nmos/query/' + v + '/<ips_type>/']['GET'][0]('potato')
                 abort.assert_called_once_with(404)
 
 
@@ -177,24 +181,24 @@ Expected:
             for t in VALID_TYPES:
                 self.queries[v].get_data_for_path.reset_mock()
                 self.queries[v].get_data_for_path.return_value = mock.DEFAULT
-                self.assert_route_returns_value(v, '/x-nmos/query/' + v + '/<nmos_type>/<el_id>/', [t, EL_ID,], (200, self.queries[v].get_data_for_path.return_value), request)
+                self.assert_route_returns_value(v, '/x-nmos/query/' + v + '/<ips_type>/<el_id>/', [t, EL_ID,], (200, self.queries[v].get_data_for_path.return_value), request)
                 self.queries[v].get_data_for_path.assert_called_once_with('/' + t + '/' + EL_ID, request.args)
 
                 self.queries[v].get_data_for_path.reset_mock()
                 self.queries[v].get_data_for_path.return_value = None
-                self.assert_route_returns_value(v, '/x-nmos/query/' + v + '/<nmos_type>/<el_id>/', [t, EL_ID,], (404,''), request)
+                self.assert_route_returns_value(v, '/x-nmos/query/' + v + '/<ips_type>/<el_id>/', [t, EL_ID,], (404,''), request)
                 self.queries[v].get_data_for_path.assert_called_once_with('/' + t + '/' + EL_ID, request.args)
 
                 self.queries[v].get_data_for_path.reset_mock()
                 self.queries[v].get_data_for_path.return_value = [ mock.sentinel.query_data0, mock.sentinel.query_data1 ]
-                self.assert_route_returns_value(v, '/x-nmos/query/' + v + '/<nmos_type>/<el_id>/', [t, EL_ID,], (200, mock.sentinel.query_data0), request)
+                self.assert_route_returns_value(v, '/x-nmos/query/' + v + '/<ips_type>/<el_id>/', [t, EL_ID,], (200, mock.sentinel.query_data0), request)
                 self.queries[v].get_data_for_path.assert_called_once_with('/' + t + '/' + EL_ID, request.args)
 
             if True: # Done to indent this block
                 t = "nmos-potato"
                 abort.reset_mock()
                 with self.assertRaises(AbortException) as e:
-                    self.UUT.routes['/x-nmos/query/' + v + '/<nmos_type>/<el_id>/']['GET'][0](t, EL_ID)
+                    self.UUT.routes['/x-nmos/query/' + v + '/<ips_type>/<el_id>/']['GET'][0](t, EL_ID)
                 abort.assert_called_once_with(404)
 
     @mock.patch('nmosquery.common.routes.abort', side_effect=AbortException)
