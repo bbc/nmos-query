@@ -2,12 +2,12 @@
 
 Provides a service implementing the NMOS Query API, specified in [AMWA IS-04](https://github.com/AMWA-TV/nmos-discovery-registration). This API allows querying of an IS-04 registry. This API can be used in conjunction with the [BBC's implementation of the Registration API](https://github.com/bbc/nmos-registration/). The BBC has also produced an open source implementation of the [IS-04 Node API](https://github.com/bbc/nmos-node).
 
-For those wishing to experiment or familiarise themselves with the APIs the BBC has provided a joint reference implementation of IS-04 and IS-05 (here)[https://github.com/bbc/nmos-joint-ri], which is readily installed using Vagrant and provides some basic user interfaces for interacting with the APIs.
+For those wishing to experiment or familiarise themselves with the APIs the BBC has provided a joint reference implementation of IS-04 and IS-05 [here](https://github.com/bbc/nmos-joint-ri), which is readily installed using Vagrant and provides some basic user interfaces for interacting with the APIs.
 
 This implementation was written by the BBC as part of our work on the IS-04 specification, and is research software. It has been open sourced to provide an example of the API, but has not been designed for use in production.
 
 ## Bugs and Contributions
-Please file any bugs in the github issue tracker for this repository. 
+Please file any bugs in the github issue tracker for this repository. We welcome contributions in the form of pull requests to this repository, but we would ask that you please take note of our contribution policy in [CONTRIBUTING.md].
 
 ## Installing with Python
 
