@@ -87,13 +87,15 @@ class RoutesCommon(object):
             else:
                 abort(403, "Not a persistent websocket")
         elif not obj:
+            if request.method == "DELETE":
+                return (204, None)
             abort(404, "Subscription not found")
 
         return (200, obj)
 
     @on_json('/ws/')
-    def __ws(self, ws):
-        self.logger.writeInfo("{} ws {}".format(self.api_version, ws))
+    def __ws(self, ws, msg, **kwargs):
+        self.logger.writeInfo("{} ws {!r}, msg: {!r}, kwargs: {!r}".format(self.api_version, ws, msg, kwargs))
         return
 
     def websocket_opened(self, handler_func):

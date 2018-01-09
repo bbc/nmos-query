@@ -22,7 +22,8 @@ def translate_resourcetypes(url):
         return "{}/{}".format(split[0], string.lower(split[1]))
     elif len(split) == 1:
         return split[0]
-    else:
+    # It should be literally impossible for the following to happen
+    else: # pragma: no cover
         return ''
 
 def get_resourcetypes(url):

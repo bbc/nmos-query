@@ -104,7 +104,7 @@ class QuerySocketsCommon(object):
             uid = opts.get('uuid', None)
             if uid == sock.uuid:
                 proposed_sock = sock
-            elif sock.resource_path == opts.get('resource_path', '') and json.dumps(sock.params) == json.dumps(opts.get('params')):
+            elif sock.resource_path == opts.get('resource_path', '') and json.dumps(sock.params) == json.dumps(opts.get('params', {})):
                 proposed_sock = sock
 
             if proposed_sock:
