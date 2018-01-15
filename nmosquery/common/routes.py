@@ -62,7 +62,7 @@ class RoutesCommon(object):
     @route('/subscriptions', methods=['POST'])
     def __subscriptions_post(self):
         try:
-            data = json.loads(request.data)
+            data = json.loads(request.get_data())
         except ValueError:
             abort(400, "No data supplied")
         if "secure" not in data and self.config["https_mode"] == "enabled":

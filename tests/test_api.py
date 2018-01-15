@@ -208,19 +208,19 @@ Expected:
         data = { 'foo' : 'bar', 'baz' : [ 'boop', ] }
 
         for v in ['v1.0', 'v1.1', 'v1.2' ]:
-            request.data   = json.dumps(data)
+            request.get_data = mock.MagicMock(return_value=json.dumps(data))
             self.queries[v].post_ws_subscribers.reset_mock()
             self.queries[v].post_ws_subscribers.return_value = (mock.sentinel.obj, True)
             self.assert_route_returns_value(v, '/x-nmos/query/' + v + '/subscriptions', [], (201, mock.sentinel.obj), request, method="POST")
             self.queries[v].post_ws_subscribers.assert_called_once_with(data)
 
-            request.data   = json.dumps(data)
+            request.get_data = mock.MagicMock(return_value=json.dumps(data))
             self.queries[v].post_ws_subscribers.reset_mock()
             self.queries[v].post_ws_subscribers.return_value = (mock.sentinel.obj, False)
             self.assert_route_returns_value(v, '/x-nmos/query/' + v + '/subscriptions', [], (200, mock.sentinel.obj), request, method="POST")
             self.queries[v].post_ws_subscribers.assert_called_once_with(data)
 
-            request.data   = "{"
+            request.get_data = mock.MagicMock(return_value="{")
             abort.reset_mock()
             with self.assertRaises(AbortException):
                 self.UUT.routes['/x-nmos/query/' + v + '/subscriptions']['POST'][0]()
@@ -232,7 +232,7 @@ Expected:
         data = { 'foo' : 'bar', 'baz' : [ 'boop', ] }
 
         for v in ['v1.0', 'v1.1', 'v1.2' ]:
-            request.data   = json.dumps(data)
+            request.get_data = json.dumps(data)
             self.queries[v].get_ws_subscribers.reset_mock()
             self.queries[v].get_ws_subscribers.return_value = mock.sentinel.obj
             self.assert_route_returns_value(v, '/x-nmos/query/' + v + '/subscriptions/', [], (200, mock.sentinel.obj), request)
