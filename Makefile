@@ -36,9 +36,6 @@ clean:
 	find . -name '*.py,cover' -delete
 	rm -rf $(VENV)
 
-test:
-	$(PYTHON) -m unittest discover
-
 $(VENV):
 	virtualenv --system-site-packages $@
 
