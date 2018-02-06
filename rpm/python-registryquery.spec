@@ -6,7 +6,7 @@ Release: 		1%{?dist}
 License: 		Internal Licence
 Summary: 		API interface to IP Studio service registry
 
-Source0: 		nmosquery-%{version}.tar.gz
+Source0: 		python-registryquery-%{version}.tar.gz
 Source1:                ips-regquery.service
 Source2:                ips-api-nmosquery.conf
 
