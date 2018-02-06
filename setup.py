@@ -75,7 +75,7 @@ packages_required = [
 
 deps_required = []
 
-setup(name = "nmosquery",
+setup(name = "python-registryquery",
       version = "0.1.0",
       description = "nmos query API",
       url='www.nmos.tv',

@@ -1,4 +1,4 @@
-%global module_name nmosquery
+%global module_name python_registryquery
 
 Name: 			python-registryquery
 Version: 		0.1.0
