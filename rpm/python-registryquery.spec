@@ -1,4 +1,4 @@
-%global module_name python_registryquery
+%global module_name python-registryquery
 
 Name: 			python-registryquery
 Version: 		0.1.0
