@@ -25,7 +25,7 @@ Requires:       python-flask              >= 0.10.2
 Requires:       python-requests           >= 0.9.3
 Requires:       python-ws4py
 Requires:       ips-etcd
-Requires:       nmosreverseproxy
+Requires:       ips-reverseproxy-common
 Requires:	nmoscommon
 %{?systemd_requires}
 
