@@ -275,16 +275,15 @@ class TestQueryCommon(unittest.TestCase):
                 with mock.patch('requests.request', return_value=mock.MagicMock(name='response', status_code=code, text=text)) as request:
                     r = self.UUT.get_data_for_path(path, args)
                     request.assert_called_once_with('GET', 'http://%s:%i/v2/keys/resource/?recursive=true' % (reg['host'], reg['port']), proxies={'http': ''})
-                self.assertEqual(r, expected, msg="""
-Call to get_data_for_path({!r},{!r}) with version {} and GET request returning {!r} returned:
-
-{}
-
-when we expected:
-
-{}
-
-""".format(path, args, v, (code, text), json.dumps(r, indent=4), json.dumps(expected, indent=4)))
+                msg = ("Call to get_data_for_path({!r},{!r}) with version {} and GET request returning {!r} returned:"
+                       "\n{}\n"
+                       "\nwhen we expected:"
+                       "{}\n")
+                msg = msg.format(path, args, v, (code, text), json.dumps(r, indent=4), json.dumps(expected, indent=4))
+                if r is not None:
+                    self.assertItemsEqual(r, expected, msg)
+                else:
+                    self.assertEqual(r, expected, msg)
 
     @mock.patch('nmosquery.common.querysockets.getLocalIP', return_value="192.168.0.23")
     def test_get_ws_subscribers(self, getLocalIP):

@@ -14,37 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
+from __future__ import print_function
 from setuptools import setup
-from distutils.version import LooseVersion
 import os
 import sys
 
-def check_packages(packages):
-    failure = False
-    for python_package, package_details in packages:
-        try:
-            __import__(python_package)
-        except ImportError as err:
-            failure = True
-            print "Cannot find", python_package,
-            print "you need to install :", package_details
-
-    return not failure
-
-def check_dependencies(packages):
-    failure = False
-    for python_package, dependency_filename, dependency_url in packages:
-        try:
-            __import__(python_package)
-        except ImportError as err:
-            failure = True
-            print
-            print "Cannot find", python_package,
-            print "you need to install :", dependency_filename
-            print "... originally retrieved from", dependency_url
-
-    return not failure
 
 def is_package(path):
     return (
@@ -52,45 +26,47 @@ def is_package(path):
         os.path.isfile(os.path.join(path, '__init__.py'))
         )
 
-def find_packages(path, base="" ):
+
+def find_packages(path, base=""):
     """ Find all packages in path """
     packages = {}
     for item in os.listdir(path):
         dir = os.path.join(path, item)
-        if is_package( dir ):
-            if item != "tests":
-                if base:
-                    module_name = "%(base)s.%(item)s" % vars()
-                else:
-                    module_name = item
-                packages[module_name] = dir
-                packages.update(find_packages(dir, module_name))
+        if is_package(dir):
+            if base:
+                module_name = "%(base)s.%(item)s" % vars()
+            else:
+                module_name = item
+            packages[module_name] = dir
+            packages.update(find_packages(dir, module_name))
     return packages
+
 
 packages = find_packages(".")
 package_names = packages.keys()
 
 packages_required = [
+    "gevent>=1.2.2",
+    "nmoscommon",
+    "flask>=0.10.1",
+    "systemd>=0.16.1",
+    "ws4py>=0.3.4",
+    "requests>=0.9.3"
 ]
 
-deps_required = []
-
-setup(name = "python-registryquery",
-      version = "0.1.0",
-      description = "nmos query API",
+setup(name="registryquery",
+      version="0.2.1",
+      description="nmos query API",
       url='www.nmos.tv',
-      author='Peter Brightell',
+      author='Peter Brightwell',
       author_email='peter.brightwell@bbc.co.uk',
       license='Apache 2',
-      packages = package_names,
-      package_dir = packages,
-      install_requires = packages_required,
-      scripts = [
-                ],
+      packages=package_names,
+      package_dir=packages,
+      install_requires=packages_required,
+      scripts=[],
       data_files=[
-          ('/usr/bin', ['bin/nmosquery'])
+        ('/usr/bin', ['bin/nmosquery'])
       ],
-      long_description = """
-Implementation of the service discovery backend.
-"""
+      long_description="Implementation of the service discovery backend."
       )
