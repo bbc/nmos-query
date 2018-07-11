@@ -55,7 +55,7 @@ packages_required = [
 ]
 
 setup(name="registryquery",
-      version="0.2.2",
+      version="0.2.3",
       description="nmos query API",
       url='www.nmos.tv',
       author='Peter Brightwell',
