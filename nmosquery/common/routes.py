@@ -42,6 +42,11 @@ class RoutesCommon(object):
         self.logger.writeDebug('ips_type')
         if ips_type not in VALID_TYPES:
             abort(404)
+        for key in request.args:
+            if key.startswith("query.ancestry_"):
+                abort(501)
+            elif key == "query.rql":
+                abort(501)
         obj = self.query.get_data_for_path('/{}'.format(ips_type), request.args)
         self.logger.writeDebug('obj {}'.format(obj))
         if not obj:
