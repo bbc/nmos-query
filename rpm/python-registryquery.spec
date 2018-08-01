@@ -44,7 +44,7 @@ Provides an API interface to the shared service registry via HTTP and WebSockets
 
 # Install config file
 install -d -m 0755 %{buildroot}%{_sysconfdir}/ips-regquery
-install -D -p -m 0644 etc/config.json %{buildroot}%{_sysconfdir}/ips-regquery/config.json
+install -D -p -m 0644 etc/ips-regquery/config.json %{buildroot}%{_sysconfdir}/ips-regquery/config.json
 
 # Install systemd unit file
 install -D -p -m 0644 %{SOURCE1} %{buildroot}%{_unitdir}/ips-regquery.service
