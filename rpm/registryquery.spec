@@ -1,12 +1,12 @@
-%global module_name python-registryquery
+%global module_name registryquery
 
-Name: 			python-registryquery
-Version: 		0.1.0
+Name: 			python-%{module_name}
+Version: 		0.2.3
 Release: 		1%{?dist}
 License: 		Internal Licence
 Summary: 		API interface to IP Studio service registry
 
-Source0: 		python-registryquery-%{version}.tar.gz
+Source0: 		%{module_name}-%{version}.tar.gz
 Source1:                ips-regquery.service
 Source2:                ips-api-nmosquery.conf
 
