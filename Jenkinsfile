@@ -4,7 +4,6 @@
  Runs the following steps in parallel and reports results to GitHub:
  - Lint using flake8
  - Run Python 2.7 unit tests in tox
- - Run Python 3 unit tests in tox
  - Build Debian packages for supported Ubuntu versions
 
  If these steps succeed and the master branch is being built, wheels and debs are uploaded to Artifactory and the
@@ -29,7 +28,7 @@ pipeline {
         booleanParam(name: "FORCE_DEBUPLOAD", defaultValue: false, description: "Force Debian package upload")
     }
     triggers {
-        upstream (upstreamProjects: "ap.python-library-nmos-common")
+        upstream (upstreamProjects: "apmm-repos/nmos-common/master")
     }
     environment {
         http_proxy = "http://www-cache.rd.bbc.co.uk:8080"

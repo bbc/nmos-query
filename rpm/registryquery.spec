@@ -1,12 +1,12 @@
-%global module_name python-registryquery
+%global module_name registryquery
 
-Name: 			python-registryquery
-Version: 		0.1.0
+Name: 			python-%{module_name}
+Version: 		0.2.4
 Release: 		1%{?dist}
 License: 		Internal Licence
 Summary: 		API interface to IP Studio service registry
 
-Source0: 		python-registryquery-%{version}.tar.gz
+Source0: 		%{module_name}-%{version}.tar.gz
 Source1:                ips-regquery.service
 Source2:                ips-api-nmosquery.conf
 
@@ -44,7 +44,7 @@ Provides an API interface to the shared service registry via HTTP and WebSockets
 
 # Install config file
 install -d -m 0755 %{buildroot}%{_sysconfdir}/ips-regquery
-install -D -p -m 0644 etc/config.json %{buildroot}%{_sysconfdir}/ips-regquery/config.json
+install -D -p -m 0644 etc/ips-regquery/config.json %{buildroot}%{_sysconfdir}/ips-regquery/config.json
 
 # Install systemd unit file
 install -D -p -m 0644 %{SOURCE1} %{buildroot}%{_unitdir}/ips-regquery.service
@@ -77,10 +77,10 @@ rm -rf %{buildroot}
 %files
 %{_bindir}/nmosquery
 
-%{_unitdir}/ips-regquery.service
+%{_unitdir}/%{name}.service
 
-%{python2_sitelib}/nmosquery
-%{python2_sitelib}/python_registryquery-%{version}*.egg-info
+%{python2_sitelib}/%{module_name}
+%{python2_sitelib}/%{module_name}-%{version}*.egg-info
 
 %defattr(-,ipstudio, ipstudio,-)
 #%config(noreplace) %{_sysconfdir}/ips-regquery
