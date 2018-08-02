@@ -77,10 +77,10 @@ rm -rf %{buildroot}
 %files
 %{_bindir}/nmosquery
 
-%{_unitdir}/ips-regquery.service
+%{_unitdir}/%{name}.service
 
-%{python2_sitelib}/nmosquery
-%{python2_sitelib}/python_registryquery-%{version}*.egg-info
+%{python2_sitelib}/%{module_name}
+%{python2_sitelib}/%{module_name}-%{version}*.egg-info
 
 %defattr(-,ipstudio, ipstudio,-)
 #%config(noreplace) %{_sysconfdir}/ips-regquery
