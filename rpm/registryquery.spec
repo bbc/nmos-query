@@ -1,7 +1,7 @@
 %global module_name registryquery
 
 Name: 			python-%{module_name}
-Version: 		0.2.4
+Version: 		0.2.5
 Release: 		1%{?dist}
 License: 		Internal Licence
 Summary: 		API interface to IP Studio service registry

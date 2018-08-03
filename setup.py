@@ -45,6 +45,7 @@ def find_packages(path, base=""):
 packages = find_packages(".")
 package_names = packages.keys()
 
+# REMEMBER: If this list is updated, please also update stdeb.cfg and the RPM specfile
 packages_required = [
     "gevent>=1.2.2",
     "nmoscommon",
@@ -55,7 +56,7 @@ packages_required = [
 ]
 
 setup(name="registryquery",
-      version="0.2.4",
+      version="0.2.5",
       description="nmos query API",
       url='www.nmos.tv',
       author='Peter Brightwell',
