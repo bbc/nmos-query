@@ -44,7 +44,6 @@ Provides an API interface to the shared service registry via HTTP and WebSockets
 
 # Install config file
 install -d -m 0755 %{buildroot}%{_sysconfdir}/ips-regquery
-install -D -p -m 0644 etc/ips-regquery/config.json %{buildroot}%{_sysconfdir}/ips-regquery/config.json
 
 # Install systemd unit file
 install -D -p -m 0644 %{SOURCE1} %{buildroot}%{_unitdir}/ips-regquery.service
@@ -84,7 +83,6 @@ rm -rf %{buildroot}
 
 %defattr(-,ipstudio, ipstudio,-)
 #%config(noreplace) %{_sysconfdir}/ips-regquery
-%config(noreplace) %{_sysconfdir}/ips-regquery/config.json
 %config %{_sysconfdir}/httpd/conf.d/ips-apis/ips-api-nmosquery.conf
 
 %ghost %{_localstatedir}/log/ipstudio/regquery_state.log
