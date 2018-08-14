@@ -76,7 +76,7 @@ rm -rf %{buildroot}
 %files
 %{_bindir}/nmosquery
 
-%{_unitdir}/%{name}.service
+%{_unitdir}/ips-regquery.service
 
 %{python2_sitelib}/%{module_name}
 %{python2_sitelib}/%{module_name}-%{version}*.egg-info
