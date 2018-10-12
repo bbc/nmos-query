@@ -57,8 +57,8 @@ packages_required = [
 
 setup(name="registryquery",
       version="0.2.6",
-      description="nmos query API",
-      url='www.nmos.tv',
+      description="BBC implementation of an AMWA NMOS Query API",
+      url='https://github.com/bbc/nmos-query',
       author='Peter Brightwell',
       author_email='peter.brightwell@bbc.co.uk',
       license='Apache 2',
@@ -69,5 +69,5 @@ setup(name="registryquery",
       data_files=[
         ('/usr/bin', ['bin/nmosquery'])
       ],
-      long_description="Implementation of the service discovery backend."
+      long_description="Provides a service implementing the NMOS Query API"
       )
