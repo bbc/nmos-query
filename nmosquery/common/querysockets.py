@@ -98,13 +98,21 @@ class QuerySocketsCommon(object):
         except ValueError:
             self.logger.writeWarning("del_sock: attempt to remove socket that did not exist")
 
+    def match_sock(self, sock, opts):
+        """Check if the socket matches the requested opts using the following parameters"""
+        checked_params = ["resource_path", "secure", "max_update_rate_ms", "params"]
+        for param in checked_params:
+            if getattr(sock, param) != opts.get(param, ''):
+                return False
+        return True
+
     def get_sock(self, opts, exclude_persist=False): # exclude_persist causes persistent sockets not to be returned
         for sock in self.sockets:
             proposed_sock = None
             uid = opts.get('uuid', None)
             if uid == sock.uuid:
                 proposed_sock = sock
-            elif sock.resource_path == opts.get('resource_path', '') and json.dumps(sock.params) == json.dumps(opts.get('params', {})):
+            elif self.match_sock(sock, opts):
                 proposed_sock = sock
 
             if proposed_sock:
