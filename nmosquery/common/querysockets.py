@@ -100,9 +100,9 @@ class QuerySocketsCommon(object):
 
     def match_sock(self, sock, opts):
         """Check if the socket matches the requested opts using the following parameters"""
-        checked_params = ["resource_path", "secure", "max_update_rate_ms", "params"]
+        checked_params = [("resource_path", ''), ("secure", False), ("max_update_rate_ms", 100), ("params", {})]
         for param in checked_params:
-            if getattr(sock, param) != opts.get(param, ''):
+            if getattr(sock, param[0]) != opts.get(param[0], param[1]):
                 return False
         return True
 
