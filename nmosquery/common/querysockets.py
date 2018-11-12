@@ -43,11 +43,14 @@ class QuerySocketCommon(object):
         scheme = "ws"
         if self.secure:
             scheme = "wss"
-        if nmoscommonconfig.config.get('prefer_ipv6',False) == False:
-            href = '{}://{}/x-nmos/query/{}/ws/?uid={}'.format(scheme, getLocalIP(), self.api_version, self.uuid)
+        if nmoscommonconfig.config.get('node_hostname', None) is not None:
+            host = nmoscommonconfig.config['node_hostname']
+        elif nmoscommonconfig.config.get('prefer_ipv6', False) is False:
+            host = getLocalIP()
         else:
-            href = '{}://[{}]/x-nmos/query/{}/ws/?uid={}'.format(scheme, getLocalIP(), self.api_version, self.uuid)
-        return href
+            host = '[{}]'.format(getLocalIP())
+
+        return '{}://{}/x-nmos/query/{}/ws/?uid={}'.format(scheme, host, self.api_version, self.uuid)
 
     def add_subscriber(self, ws):
         self.logger.writeDebug('add_subscriber')
