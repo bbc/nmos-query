@@ -33,7 +33,7 @@ DNS_SD_HTTP_PORT = 80
 DNS_SD_HTTPS_PORT = 443
 DNS_SD_NAME = 'query_' + str(HOST)
 DNS_SD_TYPE = '_nmos-query._tcp'
-API_VERSIONS = ["v1.0", "v1.1", "v1.2"]
+API_VERSIONS = ["v1.0", "v1.1", "v1.2", "v1.3"]
 
 class QueryService:
 
