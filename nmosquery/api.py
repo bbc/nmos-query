@@ -20,6 +20,7 @@ from nmosquery.v1_3 import routes as v1_3
 
 QUERY_APINAMESPACE = "x-nmos"
 QUERY_APINAME = "query"
+QUERY_APIVERSIONS = ["v1.0", "v1.1", "v1.2", "v1.3"]
 
 class QueryServiceAPI(WebAPI):
 
@@ -50,4 +51,4 @@ class QueryServiceAPI(WebAPI):
 
     @route('/'+QUERY_APINAMESPACE+'/'+QUERY_APINAME+'/')
     def __nameindex(self):
-        return (200, ["v1.0/", "v1.1/", "v1.2/", "v1.3/"])
+        return (200, [api_version + "/" for api_version in QUERY_APIVERSIONS])
