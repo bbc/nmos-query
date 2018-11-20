@@ -25,7 +25,7 @@ import copy
 
 from uuid import *
 
-API_VERSIONS = [ "v1.0", "v1.1", "v1.2" ]
+API_VERSIONS = [ "v1.0", "v1.1", "v1.2", "v1.3" ]
 
 node_data = {
     u'id': u'c16c9fa4-e578-11e7-b326-2b6c74db16d7',
@@ -39,7 +39,7 @@ node_data = {
                 u'port': 80
             }
         ],
-        u'versions': [u'v1.0', u'v1.1', u'v1.2']
+        u'versions': [u'v1.0', u'v1.1', u'v1.2', u'v1.3']
     },
     u'interfaces': [
         {
@@ -66,7 +66,7 @@ node_data = {
     ],
     u'href': u'http://192.168.0.23/',
     u'version': u'1513150539:243021544',
-    u'@_apiversion': u'v1.2',
+    u'@_apiversion': u'v1.3',
     u'services': [
         {
             u'href': u'http://192.168.0.23/x-nmos/dummy/v1.0/',
@@ -80,7 +80,7 @@ node_data_string = json.dumps(node_data)
 
 flow_data = {
     u'id': u'b30ebee2-e578-11e7-a01e-ab8cee26a3ae',
-    u'@_apiversion': u'v1.2',
+    u'@_apiversion': u'v1.3',
     u'colorspace': u'BT709',
     u'components': [
         {
@@ -138,7 +138,7 @@ flow_v1_0_data = {
 flow_v1_0_data_string = json.dumps(flow_v1_0_data)
 
 sender_data = {
-    u'@_apiversion': u'v1.2',
+    u'@_apiversion': u'v1.3',
     u'description': u'',
     u'device_id': u'377c29f8-e579-11e7-b2c1-03c3d0721a9a',
     u'flow_id': u'b30ebee2-e578-11e7-a01e-ab8cee26a3ae',
@@ -259,7 +259,7 @@ class TestQueryCommon(unittest.TestCase):
         """This is the core method used in this class, it is supposed to return data retrieved via a GET request to the underlying database."""
         for v in API_VERSIONS:
             self.setup(v)
-            # path, args, (db_resp_code, db_resp_data), expected_return_value 
+            # path, args, (db_resp_code, db_resp_data), expected_return_value
             test_data = [
                 [ "/", {}, (404, ""), None ],
                 [ "/", {}, (200, json.dumps({ "potatoes" : [ "a", "list", "of", "potatoes" ] })), [] ],

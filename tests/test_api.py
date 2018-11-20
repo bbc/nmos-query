@@ -129,7 +129,7 @@ class TestQueryServiceAPI(unittest.TestCase):
         self.assertEqual(self.UUT.routes['/x-nmos/']['GET'][0](), (200, ["query/"]))
 
     def test_nameindex(self):
-        self.assertEqual(self.UUT.routes['/x-nmos/query/']['GET'][0](), (200, ["v1.0/", "v1.1/", "v1.2/", "v1.3/"]))
+        self.assertEqual(self.UUT.routes['/x-nmos/query/']['GET'][0](), (200, [api_version + "/" for api_version in API_VERSIONS]))
 
     # These additional methods test out routes added by the common.routes.RoutesCommon class
     def test_versionindex(self):
