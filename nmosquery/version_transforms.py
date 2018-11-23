@@ -66,7 +66,7 @@ def _v1_1_to_v1_0(obj, rtype):
             _remove_if_present(obj, key)
 
     elif rtype == "flows":
-        for key in ["device_id", "media_type", "refclock", "colorspace",
+        for key in ["device_id", "media_type", "colorspace",
                     "components", "frame_height", "frame_width",
                     "interlace_mode", "bit_depth", "sample_rate",
                     "DID_SDID", "grain_rate", "transfer_characteristic"]:
@@ -80,7 +80,7 @@ def _v1_1_to_v1_0(obj, rtype):
         obj['caps'] = {}
 
     elif rtype == "sources":
-        for key in ["clock_name", "channels"]:
+        for key in ["clock_name", "channels", "grain_rate"]:
             _remove_if_present(obj, key)
 
     return obj
@@ -96,7 +96,7 @@ def _v1_2_to_v1_1(obj, rtype):
             _remove_if_present(obj, key)
 
     elif rtype == "senders":
-        for key in ["interface_bindings", "caps"]:
+        for key in ["interface_bindings", "caps", "subscription"]:
             _remove_if_present(obj, key)
 
     return obj
