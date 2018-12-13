@@ -13,6 +13,8 @@
 # limitations under the License.
 
 from nmoscommon.webapi import WebAPI, route
+from nmoscommon.nmoscommonconfig import config as _config
+
 from nmosquery.v1_0 import routes as v1_0
 from nmosquery.v1_1 import routes as v1_1
 from nmosquery.v1_2 import routes as v1_2
@@ -21,6 +23,9 @@ from nmosquery.v1_3 import routes as v1_3
 QUERY_APINAMESPACE = "x-nmos"
 QUERY_APINAME = "query"
 QUERY_APIVERSIONS = ["v1.0", "v1.1", "v1.2", "v1.3"]
+if _config.get("https_mode", "disabled") == "enabled":
+    QUERY_APIVERSIONS.remove("v1.0")
+
 
 class QueryServiceAPI(WebAPI):
 
