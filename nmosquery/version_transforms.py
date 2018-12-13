@@ -18,10 +18,13 @@ def convert(obj, rtype, target_ver, downgrade_ver=None):
         obj["@_apiversion"] = "v1.0"
 
     # Fix max supported API version
-    if _api_ver_compare(target_ver, "v1.2") > 0:
+    if _api_ver_compare(target_ver, "v1.3") > 0:
         return None
 
     # Convert high versioned resources for low versioned output
+    if _api_ver_compare(target_ver, "v1.3") < 0 and obj["@_apiversion"] == "v1.3":
+        obj = _v1_3_to_v1_2(obj, rtype)
+        obj["@_apiversion"] = "v1.2"
     if _api_ver_compare(target_ver, "v1.2") < 0 and obj["@_apiversion"] == "v1.2":
         obj = _v1_2_to_v1_1(obj, rtype)
         obj["@_apiversion"] = "v1.1"
@@ -99,4 +102,8 @@ def _v1_2_to_v1_1(obj, rtype):
         for key in ["interface_bindings", "caps", "subscription"]:
             _remove_if_present(obj, key)
 
+    return obj
+
+
+def _v1_3_to_v1_2(obj, rtype):
     return obj

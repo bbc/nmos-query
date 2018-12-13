@@ -31,7 +31,7 @@ class WebAPIStub(object):
         self.add_routes(self, '')
 
     def add_routes(self, cl, basepath):
-        """This method checks all the methods of the class specified and its ancestors and assigns them to the "routes" dict if they have the 
+        """This method checks all the methods of the class specified and its ancestors and assigns them to the "routes" dict if they have the
         annotations added by the _route decorator (below)"""
         def getbases(cl):
             bases = list(cl.__bases__)
@@ -92,15 +92,19 @@ with mock.patch('nmoscommon.webapi.WebAPI', WebAPIStub):
 class AbortException(Exception):
     pass
 
+API_VERSIONS = ['v1.0', 'v1.1', 'v1.2', 'v1.3']
+
 class TestQueryServiceAPI(unittest.TestCase):
     @mock.patch('nmosquery.common.routes.QueryCommon')
     @mock.patch('nmosquery.v1_0.routes.Query')
     @mock.patch('nmosquery.v1_1.routes.Query')
     @mock.patch('nmosquery.v1_2.routes.Query')
-    def setUp(self, v1_2Query, v1_1Query, v1_0Query, QueryCommon):
+    @mock.patch('nmosquery.v1_3.routes.Query')
+    def setUp(self, v1_3Query, v1_2Query, v1_1Query, v1_0Query, QueryCommon):
         self.queries = {'v1.0' : v1_0Query.return_value,
                         'v1.1' : v1_1Query.return_value,
-                        'v1.2' : v1_2Query.return_value,}
+                        'v1.2' : v1_2Query.return_value,
+                        'v1.3' : v1_3Query.return_value,}
         self.logger = mock.MagicMock(name="logger")
         self.config = mock.MagicMock(dict)
         self.UUT = QueryServiceAPI(self.logger, self.config)
@@ -125,11 +129,11 @@ class TestQueryServiceAPI(unittest.TestCase):
         self.assertEqual(self.UUT.routes['/x-nmos/']['GET'][0](), (200, ["query/"]))
 
     def test_nameindex(self):
-        self.assertEqual(self.UUT.routes['/x-nmos/query/']['GET'][0](), (200, ["v1.0/", "v1.1/", "v1.2/"]))
+        self.assertEqual(self.UUT.routes['/x-nmos/query/']['GET'][0](), (200, [api_version + "/" for api_version in API_VERSIONS]))
 
     # These additional methods test out routes added by the common.routes.RoutesCommon class
     def test_versionindex(self):
-        for v in ['v1.0', 'v1.1', 'v1.2' ]:
+        for v in API_VERSIONS:
             self.assertEqual(self.UUT.routes['/x-nmos/query/' + v + '/']['GET'][0](), (200, ["subscriptions/"] + [ ips_type + '/' for ips_type in VALID_TYPES ]))
 
     def assert_route_returns_value(self, v, path, args, expected, request, method='GET'):
@@ -153,7 +157,7 @@ Expected:
     @mock.patch('nmosquery.common.routes.request')
     def test_ips_type(self, request, abort):
         """This method should call through to the relevent query"""
-        for v in ['v1.0', 'v1.1', 'v1.2' ]:
+        for v in API_VERSIONS:
             for t in VALID_TYPES:
                 self.queries[v].get_data_for_path.reset_mock()
                 self.queries[v].get_data_for_path.return_value = mock.DEFAULT
@@ -177,7 +181,7 @@ Expected:
     def test_el_id(self, request, abort):
         """This method should call through to the relevent query"""
         EL_ID = "EL_ID000"
-        for v in ['v1.0', 'v1.1', 'v1.2' ]:
+        for v in API_VERSIONS:
             for t in VALID_TYPES:
                 self.queries[v].get_data_for_path.reset_mock()
                 self.queries[v].get_data_for_path.return_value = mock.DEFAULT
@@ -207,7 +211,7 @@ Expected:
         request.method = "POST"
         data = { 'foo' : 'bar', 'baz' : [ 'boop', ] }
 
-        for v in ['v1.0', 'v1.1', 'v1.2' ]:
+        for v in API_VERSIONS:
             request.get_data = mock.MagicMock(return_value=json.dumps(data))
             self.queries[v].post_ws_subscribers.reset_mock()
             self.queries[v].post_ws_subscribers.return_value = (mock.sentinel.obj, True)
@@ -231,7 +235,7 @@ Expected:
     def test_subscriptions_get(self, request, abort):
         data = { 'foo' : 'bar', 'baz' : [ 'boop', ] }
 
-        for v in ['v1.0', 'v1.1', 'v1.2' ]:
+        for v in API_VERSIONS:
             request.get_data = json.dumps(data)
             self.queries[v].get_ws_subscribers.reset_mock()
             self.queries[v].get_ws_subscribers.return_value = mock.sentinel.obj
@@ -243,7 +247,7 @@ Expected:
     def test_subscriptions_id(self, request, abort):
         ID = "subscrid"
 
-        for v in ['v1.0', 'v1.1', 'v1.2' ]:
+        for v in API_VERSIONS:
             """GET when object exists"""
             request.method = "GET"
             self.queries[v].get_ws_subscribers.reset_mock()
@@ -356,25 +360,25 @@ Expected:
 
     def test_ws__with_socket__with_msg__non_persist(self):
         """This tests that the websocket methods respond as expected when the socket exists, the message can be accessed, and the socket is not persistant"""
-        for v in ['v1.0', 'v1.1', 'v1.2' ]:
+        for v in API_VERSIONS:
             self.assert_ws_handler_operates_as_expected(v)
 
     def test_ws__without_socket(self):
         """This tests that the websocket methods respond as expected when the socket cannot be created"""
-        for v in ['v1.0', 'v1.1', 'v1.2' ]:
+        for v in API_VERSIONS:
             self.assert_ws_handler_operates_as_expected(v, has_socket=False)
 
     def test_ws__with_socket__with_exception(self):
         """This tests that the websocket methods respond as expected when the socket dies normally"""
-        for v in ['v1.0', 'v1.1', 'v1.2' ]:
+        for v in API_VERSIONS:
             self.assert_ws_handler_operates_as_expected(v, raise_exception=socket_error)
 
     def test_ws__with_socket__with_msg__persist(self):
         """This tests that the websocket methods respond as expected when the socket exists, the message can be accessed, and the socket is persistant"""
-        for v in ['v1.0', 'v1.1', 'v1.2' ]:
+        for v in API_VERSIONS:
             self.assert_ws_handler_operates_as_expected(v, persist=True)
 
     def test_ws__with_socket__which_mysteriously_disappears_during_running(self):
         """This tests that the websocket methods respond as expected when the socket exists, but then vanishes before it can be deleted. This should be handled gracefully."""
-        for v in ['v1.0', 'v1.1', 'v1.2' ]:
+        for v in API_VERSIONS:
             self.assert_ws_handler_operates_as_expected(v, vanishing_act=True)

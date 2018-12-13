@@ -23,7 +23,7 @@ import os
 from nmoscommon.httpserver import HttpServer
 from nmoscommon.logger import Logger
 from nmoscommon.mdns import MDNSEngine
-from nmosquery.api import QueryServiceAPI
+from nmosquery.api import QueryServiceAPI, QUERY_APIVERSIONS
 from nmoscommon.utils import getLocalIP
 
 reg = {'host': 'localhost', 'port': 4001}
@@ -33,7 +33,6 @@ DNS_SD_HTTP_PORT = 80
 DNS_SD_HTTPS_PORT = 443
 DNS_SD_NAME = 'query_' + str(HOST)
 DNS_SD_TYPE = '_nmos-query._tcp'
-API_VERSIONS = ["v1.0", "v1.1", "v1.2"]
 
 class QueryService:
 
@@ -78,12 +77,12 @@ class QueryService:
         if self.config["https_mode"] != "enabled":
             self.mdns.register(DNS_SD_NAME + "_http", DNS_SD_TYPE, DNS_SD_HTTP_PORT,
                                {"pri": priority,
-                                "api_ver": ",".join(API_VERSIONS),
+                                "api_ver": ",".join(QUERY_APIVERSIONS),
                                 "api_proto": "http"})
         if self.config["https_mode"] != "disabled":
             self.mdns.register(DNS_SD_NAME + "_https", DNS_SD_TYPE, DNS_SD_HTTPS_PORT,
                                {"pri": priority,
-                                "api_ver": ",".join(API_VERSIONS),
+                                "api_ver": ",".join(QUERY_APIVERSIONS),
                                 "api_proto": "https"})
 
     def run(self):

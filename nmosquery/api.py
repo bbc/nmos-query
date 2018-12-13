@@ -16,9 +16,11 @@ from nmoscommon.webapi import WebAPI, route
 from nmosquery.v1_0 import routes as v1_0
 from nmosquery.v1_1 import routes as v1_1
 from nmosquery.v1_2 import routes as v1_2
+from nmosquery.v1_3 import routes as v1_3
 
 QUERY_APINAMESPACE = "x-nmos"
 QUERY_APINAME = "query"
+QUERY_APIVERSIONS = ["v1.0", "v1.1", "v1.2", "v1.3"]
 
 class QueryServiceAPI(WebAPI):
 
@@ -36,6 +38,9 @@ class QueryServiceAPI(WebAPI):
         self.api_v1_2 = v1_2.Routes(logger, config)
         self.add_routes(self.api_v1_2, basepath="/{}/{}/v1.2".format(QUERY_APINAMESPACE, QUERY_APINAME))
 
+        self.api_v1_3 = v1_3.Routes(logger, config)
+        self.add_routes(self.api_v1_3, basepath="/{}/{}/v1.3".format(QUERY_APINAMESPACE, QUERY_APINAME))
+
     @route('/')
     def __index(self):
         return (200, [QUERY_APINAMESPACE+"/"])
@@ -46,4 +51,4 @@ class QueryServiceAPI(WebAPI):
 
     @route('/'+QUERY_APINAMESPACE+'/'+QUERY_APINAME+'/')
     def __nameindex(self):
-        return (200, ["v1.0/", "v1.1/", "v1.2/"])
+        return (200, [api_version + "/" for api_version in QUERY_APIVERSIONS])
