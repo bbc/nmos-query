@@ -1,3 +1,5 @@
 {
-    "priority": 100
+    "priority": 100,
+    "https_mode": "disabled",
+    "enable_mdns": true
 }

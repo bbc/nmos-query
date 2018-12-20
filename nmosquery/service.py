@@ -44,7 +44,7 @@ class QueryService:
         # enabled = Use HTTPS only in all URLs and mDNS adverts
         # disabled = Use HTTP only in all URLs and mDNS adverts
         # mixed = Use HTTP in all URLs, but additionally advertise an HTTPS endpoint for discovery of this API only
-        self.config = {"priority": 100, "https_mode": "disabled"}
+        self.config = {"priority": 100, "https_mode": "disabled", "enable_mdns": True}
         self._load_config()
         self.mdns = MDNSEngine()
         self.httpServer = HttpServer(QueryServiceAPI, WS_PORT, '0.0.0.0', api_args=[self.logger, self.config])
@@ -74,12 +74,12 @@ class QueryService:
         if not str(priority).isdigit() or priority < 100:
             priority = 0
 
-        if self.config["https_mode"] != "enabled":
+        if self.config["https_mode"] != "enabled" and self.config["enable_mdns"]:
             self.mdns.register(DNS_SD_NAME + "_http", DNS_SD_TYPE, DNS_SD_HTTP_PORT,
                                {"pri": priority,
                                 "api_ver": ",".join(QUERY_APIVERSIONS),
                                 "api_proto": "http"})
-        if self.config["https_mode"] != "disabled":
+        if self.config["https_mode"] != "disabled" and self.config["enable_mdns"]:
             self.mdns.register(DNS_SD_NAME + "_https", DNS_SD_TYPE, DNS_SD_HTTPS_PORT,
                                {"pri": priority,
                                 "api_ver": ",".join(QUERY_APIVERSIONS),
