@@ -129,7 +129,7 @@ class EtcdEventQueue(object):
                 next_index_param = "&waitIndex={}".format(current_index + 1)
                 req = requests.get(self._long_poll_url + next_index_param, proxies={'http': ''}, timeout=20)
 
-            except socket.timeout:
+            except (socket.timeout, requests.ReadTimeout):
                 # Get a new wait index to watch from by querying /resource
                 self._logger.writeDebug("Timeout waiting on long-poll. Refreshing waitIndex...")
                 current_index = self._get_index(current_index)
