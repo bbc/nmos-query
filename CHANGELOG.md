@@ -1,7 +1,9 @@
 # NMOS Query API Implementation Changelog
 
-## 0.5.1
+## 0.5.2
+- Fix compatibility with older versions of Requests which define exceptions differently
 
+## 0.5.1
 - Fix bug that causes "Read timed out." messages to be logged when communicating with etcd in normal circumstances
 
 ## 0.5.0
