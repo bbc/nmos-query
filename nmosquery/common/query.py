@@ -119,7 +119,7 @@ class QueryCommon(object):
     # summarise service in a presentable way
     def _summarise(self, json_repr):
         if not json_repr:
-            return {}
+            return None
 
         removals = (x for x in json_repr.keys() if x.startswith("@_"))
         for key in removals:
