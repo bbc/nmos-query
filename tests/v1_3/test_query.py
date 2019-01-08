@@ -107,8 +107,8 @@ class TestQuery(unittest.TestCase):
 
     def test_summarise(self):
         """ it should leave structure alone """
-        self.assertEqual({}, self.query._summarise({}))
-        self.assertEqual({}, self.query._summarise(None))
+        self.assertEqual(None, self.query._summarise({}))
+        self.assertEqual(None, self.query._summarise(None))
         self.assertEqual({"foo": 1, "bar": 2}, self.query._summarise({"foo": 1, "bar": 2}))
 
     def test_matches_path(self):
