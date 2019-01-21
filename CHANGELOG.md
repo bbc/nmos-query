@@ -1,5 +1,8 @@
 # NMOS Query API Implementation Changelog
 
+## 0.5.3
+- Ensure only wss:// connections can be created in secure mode
+
 ## 0.5.2
 - Fix compatibility with older versions of Requests which define exceptions differently
 

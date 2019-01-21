@@ -70,8 +70,11 @@ class RoutesCommon(object):
             data = json.loads(request.get_data())
         except ValueError:
             abort(400, "No data supplied")
-        if "secure" not in data and self.config["https_mode"] == "enabled":
-            data["secure"] = True
+        if self.config["https_mode"] == "enabled":
+            if "secure" not in data:
+                data["secure"] = True
+            elif data["secure"] is False:
+                abort(400, "All subscriptions must be secure when operating with HTTPS")
         obj, created = self.query.post_ws_subscribers(data)
         return (201 if created else 200, obj)
 
