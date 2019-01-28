@@ -1,5 +1,8 @@
 # NMOS Query API Implementation Changelog
 
+## 0.5.4
+- Fix bug in websocket message format
+
 ## 0.5.3
 - Ensure only wss:// connections can be created in secure mode
 

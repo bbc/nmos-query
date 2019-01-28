@@ -24,18 +24,15 @@ class GrainEvent(object):
         self.topic = ''
 
     def addGrainFromObj(self, pre_obj=None, post_obj=None):
-        if pre_obj is None:
-            pre_obj = {}
-        if post_obj is None:
-            post_obj = {}
-        uid = pre_obj.get('id', '')
-        if uid == '':
+        uid = ''
+        grain = {}
+        if pre_obj is not None:
+            uid = pre_obj.get('id', '')
+            grain["pre"] = pre_obj
+        if post_obj is not None:
             uid = post_obj.get('id', '')
-        grain = {
-            "path": uid,
-            "pre": pre_obj,
-            "post": post_obj
-        }
+            grain["post"] = post_obj
+        grain["path"] = uid
 
         self.grains.append(grain)
 
