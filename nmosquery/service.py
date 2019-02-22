@@ -71,7 +71,7 @@ class QueryService:
         self.logger.writeDebug("Running on port: {}".format(self.httpServer.port))
 
         priority = self.config["priority"]
-        if not str(priority).isdigit() or priority < 100:
+        if not str(priority).isdigit():
             priority = 0
 
         if self.config["https_mode"] != "enabled" and self.config["enable_mdns"]:
