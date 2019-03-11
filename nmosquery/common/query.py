@@ -139,15 +139,15 @@ class QueryCommon(object):
                 restype = util.get_resourcetypes(k)
 
                 if restype in VALID_TYPES:
-                    n_obj = {}
-                    pn_obj = {}
+                    post_obj = {}
+                    pre_obj = {}
                     if v:
-                        n_obj = json.loads(v.get('node', '{}'))
-                        pn_obj = json.loads(v.get('prevNode', '{}'))
-                    if response['action'] == 'set' and pn_obj != n_obj:
-                        self.do_sup(k, pn_obj, n_obj)
+                        post_obj = json.loads(v.get('node', '{}'))
+                        pre_obj = json.loads(v.get('prevNode', '{}'))
+                    if response['action'] == 'set' and pre_obj != post_obj:
+                        self.do_sup(k, pre_obj, post_obj)
                     elif response['action'] == 'delete':
-                        self.do_sdown(k, pn_obj, n_obj)
+                        self.do_sdown(k, pre_obj, post_obj)
                 else:
                     self.logger.writeError("Invalid type '{}' in response.".format(restype))
 
@@ -212,64 +212,64 @@ class QueryCommon(object):
         except Exception as err:
             self.logger.writeError('Exception in do_sync: {}'.format(err))
 
-    def do_sup(self, path, pn_obj, n_obj):
+    def do_sup(self, path, pre_obj, post_obj):
         self.logger.writeDebug('do_sup {}'.format(path))
-        if cmp(n_obj, pn_obj) == 0:
+        if cmp(post_obj, pre_obj) == 0:
             return
-        ws = self.query_sockets.find_socks(path=path, obj=n_obj, p_obj=pn_obj)
+        sockets = self.query_sockets.find_socks(path=path, obj=post_obj, p_obj=pre_obj)
         event = GrainEvent()
         event.source_id = self.gen_source_id()
         event.topic = util.get_resourcetypes(path)
-        for s in ws:
-            self.logger.writeDebug('next ws ' + s.ws_href)
+        for socket in sockets:
+            self.logger.writeDebug('next ws ' + socket.ws_href)
 
             downgrade_ver = None
-            if s.params and "query.downgrade" in s.params:
-                 downgrade_ver = s.params["query.downgrade"]
+            if socket.params and "query.downgrade" in socket.params:
+                downgrade_ver = socket.params["query.downgrade"]
 
-            s_n_obj = version_transforms.convert(n_obj, event.topic.replace("/", ""), self.api_version, downgrade_ver)
-            s_pn_obj = version_transforms.convert(pn_obj, event.topic.replace("/", ""), self.api_version, downgrade_ver)
+            socket_post_obj = version_transforms.convert(post_obj, event.topic.replace("/", ""), self.api_version, downgrade_ver)
+            socket_pre_obj = version_transforms.convert(pre_obj, event.topic.replace("/", ""), self.api_version, downgrade_ver)
 
-            if not s_n_obj and not s_pn_obj:
+            if not socket_post_obj and not socket_pre_obj:
                 continue
 
-            s_n_obj = self._summarise(s_n_obj)
-            s_pn_obj = self._summarise(s_pn_obj)
+            socket_post_obj = self._summarise(socket_post_obj)
+            socket_pre_obj = self._summarise(socket_pre_obj)
 
-            event.flow_id = s.uuid
+            event.flow_id = socket.uuid
             event.clearGrains()
-            if s_pn_obj is None or not self._matches_args(s_pn_obj, s.params):
+            if socket_pre_obj is None or not self._matches_args(socket_pre_obj, socket.params):
                 # Didn't previously match filter, so should be returned
-                event.addGrainFromObj(pre_obj=None, post_obj=n_obj)
-            elif s_n_obj is None or not self._matches_args(s_n_obj, s.params):
+                event.addGrainFromObj(pre_obj=None, post_obj=post_obj)
+            elif socket_post_obj is None or not self._matches_args(socket_post_obj, socket.params):
                 # Doesn't match filter any longer, so shouldn't be returned
-                event.addGrainFromObj(pre_obj=s_pn_obj, post_obj=None)
+                event.addGrainFromObj(pre_obj=socket_pre_obj, post_obj=None)
             else:
-                event.addGrainFromObj(pre_obj=s_pn_obj, post_obj=s_n_obj)
-            s.notify_subscribers(event.obj())
+                event.addGrainFromObj(pre_obj=socket_pre_obj, post_obj=socket_post_obj)
+            socket.notify_subscribers(event.obj())
 
-    def do_sdown(self, path, pn_obj, n_obj):
+    def do_sdown(self, path, pre_obj, post_obj):
         self.logger.writeDebug('do_sdown {}'.format(path))
-        ws = self.query_sockets.find_socks(path=path, obj=n_obj, p_obj=pn_obj)
+        sockets = self.query_sockets.find_socks(path=path, obj=post_obj, p_obj=pre_obj)
         event = GrainEvent()
         event.source_id = self.gen_source_id()
         event.topic = util.get_resourcetypes(path)
-        for s in ws:
-            self.logger.writeDebug('next ws' + s.ws_href)
+        for socket in sockets:
+            self.logger.writeDebug('next ws' + socket.ws_href)
 
             downgrade_ver = None
-            if s.params and "query.downgrade" in s.params:
-                 downgrade_ver = s.params["query.downgrade"]
+            if socket.params and "query.downgrade" in socket.params:
+                downgrade_ver = socket.params["query.downgrade"]
 
-            s_pn_obj = version_transforms.convert(pn_obj, event.topic.replace("/", ""), self.api_version, downgrade_ver)
+            socket_pre_obj = version_transforms.convert(pre_obj, event.topic.replace("/", ""), self.api_version, downgrade_ver)
 
-            if not s_pn_obj:
+            if not socket_pre_obj:
                 continue
 
-            s_pn_obj = self._summarise(s_pn_obj)
+            socket_pre_obj = self._summarise(socket_pre_obj)
 
-            event.flow_id = s.uuid
+            event.flow_id = socket.uuid
             event.clearGrains()
-            event.addGrainFromObj(pre_obj=s_pn_obj, post_obj=None)
+            event.addGrainFromObj(pre_obj=socket_pre_obj, post_obj=None)
 
-            s.notify_subscribers(event.obj())
+            socket.notify_subscribers(event.obj())
