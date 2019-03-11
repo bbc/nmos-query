@@ -1,5 +1,8 @@
 # NMOS Query API Implementation Changelog
 
+## 0.5.6
+- Fix bug causing some missing messages via WebSockets
+
 ## 0.5.5
 - Fix bug preventing use of priorities between 1 and 99
 
