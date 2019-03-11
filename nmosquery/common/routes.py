@@ -23,10 +23,13 @@ from nmosquery.common.query import QueryCommon
 
 class RoutesCommon(object):
 
-    def __init__(self, logger, config, api_version="v1.0"):
+    def __init__(self, logger, config, api_version="v1.0", query=None):
         self.logger = logger
         self.config = config
-        self.query = QueryCommon(logger=self.logger)
+        if not query:
+            self.query = QueryCommon(logger=self.logger)
+        else:
+            self.query = query
         self.on_websocket_connect = self.websocket_opened
         self.api_version = api_version
 
