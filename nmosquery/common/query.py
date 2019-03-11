@@ -238,10 +238,10 @@ class QueryCommon(object):
 
             event.flow_id = s.uuid
             event.clearGrains()
-            if not self._matches_args(s_pn_obj, s.params):
+            if s_pn_obj is None or not self._matches_args(s_pn_obj, s.params):
                 # Didn't previously match filter, so should be returned
                 event.addGrainFromObj(pre_obj=None, post_obj=n_obj)
-            elif not self._matches_args(s_n_obj, s.params):
+            elif s_n_obj is None or not self._matches_args(s_n_obj, s.params):
                 # Doesn't match filter any longer, so shouldn't be returned
                 event.addGrainFromObj(pre_obj=s_pn_obj, post_obj=None)
             else:
