@@ -132,7 +132,7 @@ class QueryCommon(object):
         Process a response from a GET long-poll on etcd (watch).
         `response' is a dict, decoded from JSON.
         """
-        self.logger.writeDebug('process response {}'.format(response))
+        self.logger.writeDebug('process response {} {}'.format(self.api_version, response))
         if response['action'] == 'set' or response['action'] == 'delete':
             unpacked = etcd_unpack(response)
             for k, v in unpacked.items():
@@ -213,7 +213,7 @@ class QueryCommon(object):
             self.logger.writeError('Exception in do_sync: {}'.format(err))
 
     def do_sup(self, path, pre_obj, post_obj):
-        self.logger.writeDebug('do_sup {}'.format(path))
+        self.logger.writeDebug('do_sup {} {}'.format(self.api_version, path))
         if cmp(post_obj, pre_obj) == 0:
             return
         sockets = self.query_sockets.find_socks(path=path, obj=post_obj, p_obj=pre_obj)
@@ -249,7 +249,7 @@ class QueryCommon(object):
             socket.notify_subscribers(event.obj())
 
     def do_sdown(self, path, pre_obj, post_obj):
-        self.logger.writeDebug('do_sdown {}'.format(path))
+        self.logger.writeDebug('do_sdown {} {}'.format(self.api_version, path))
         sockets = self.query_sockets.find_socks(path=path, obj=post_obj, p_obj=pre_obj)
         event = GrainEvent()
         event.source_id = self.gen_source_id()
