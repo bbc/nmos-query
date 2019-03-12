@@ -255,7 +255,7 @@ class QueryCommon(object):
         event.source_id = self.gen_source_id()
         event.topic = util.get_resourcetypes(path)
         for socket in sockets:
-            self.logger.writeDebug('next ws' + socket.ws_href)
+            self.logger.writeDebug('next ws ' + socket.ws_href)
 
             downgrade_ver = None
             if socket.params and "query.downgrade" in socket.params:
