@@ -126,32 +126,25 @@ class QuerySocketsCommon(object):
     # Return ws subscribers that are interested in given object
     def find_socks(self, path=None, obj=None, p_obj=None):
         retval = []
-
-        if obj != None:
-            # find subscribers for given node
-
-            # eg. path=/dest, args=[label:123]
-
-            # obj = obj[obj.keys()[0]]
-            uid = obj.get('uuid', None)
-            for s in self.sockets:
-                sock_path = util.translate_resourcetypes(s.resource_path)
-                matched = True
-                if uid == s.uuid:
-                    matched = True
-                elif sock_path:
-                    if sock_path in path:
+        # find subscribers for given node
+        # eg. path=/dest, args=[label:123]
+        # obj = obj[obj.keys()[0]]
+        for s in self.sockets:
+            sock_path = util.translate_resourcetypes(s.resource_path)
+            matched = False
+            if sock_path:
+                if sock_path in path:
+                    if obj:
                         matched = self._check_args(s, obj)
-                        if p_obj and not matched:
-                            matched = self._check_args(s, p_obj)
-                    else:
-                        matched = False
-                elif not sock_path:   # resource path not defined
-                    matched = self._check_args(s, obj)
                     if p_obj and not matched:
                         matched = self._check_args(s, p_obj)
-                if matched:
-                    retval.append(s)
+            else:  # resource path not defined
+                if obj:
+                    matched = self._check_args(s, obj)
+                if p_obj and not matched:
+                    matched = self._check_args(s, p_obj)
+            if matched:
+                retval.append(s)
         return retval
 
     def _check_args(self, s, obj):
