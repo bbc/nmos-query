@@ -2,6 +2,7 @@
 
 ## 0.5.6
 - Fix bug causing some missing messages via WebSockets
+- Fix bugs responding when multiple similar WebSockets are open
 
 ## 0.5.5
 - Fix bug preventing use of priorities between 1 and 99
