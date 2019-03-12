@@ -19,7 +19,7 @@ import os
 import socket
 import string
 import uuid
-import re
+import copy
 
 import nmosquery.util as util
 import requests
@@ -34,6 +34,7 @@ from nmosquery import version_transforms
 
 reg = {'host': 'localhost', 'port': 4001}
 WS_PORT = 8870
+
 
 class QueryCommon(object):
 
@@ -80,14 +81,15 @@ class QueryCommon(object):
                 if self._matches_path(k, pattern):
                     downgrade_ver = None
                     if args and "query.downgrade" in args:
-                         downgrade_ver = args["query.downgrade"]
+                        downgrade_ver = args["query.downgrade"]
 
                     # Downgrade / convert any mis-versioned objects as required
                     resource_type = util.get_resourcetypes(k).replace("/", "")
                     json_repr = None
                     if resource_type != "":
                         json_repr = json.loads(v)
-                        json_repr = version_transforms.convert(json_repr, resource_type, self.api_version, downgrade_ver)
+                        json_repr = version_transforms.convert(copy.deepcopy(json_repr), resource_type,
+                                                               self.api_version, downgrade_ver)
 
                     # If nothing could be downgraded, skip over the object
                     if not json_repr:
@@ -227,8 +229,10 @@ class QueryCommon(object):
             if socket.params and "query.downgrade" in socket.params:
                 downgrade_ver = socket.params["query.downgrade"]
 
-            socket_post_obj = version_transforms.convert(post_obj, event.topic.replace("/", ""), self.api_version, downgrade_ver)
-            socket_pre_obj = version_transforms.convert(pre_obj, event.topic.replace("/", ""), self.api_version, downgrade_ver)
+            socket_post_obj = version_transforms.convert(copy.deepcopy(post_obj), event.topic.replace("/", ""),
+                                                         self.api_version, downgrade_ver)
+            socket_pre_obj = version_transforms.convert(copy.deepcopy(pre_obj), event.topic.replace("/", ""),
+                                                        self.api_version, downgrade_ver)
 
             if not socket_post_obj and not socket_pre_obj:
                 continue
@@ -261,7 +265,8 @@ class QueryCommon(object):
             if socket.params and "query.downgrade" in socket.params:
                 downgrade_ver = socket.params["query.downgrade"]
 
-            socket_pre_obj = version_transforms.convert(pre_obj, event.topic.replace("/", ""), self.api_version, downgrade_ver)
+            socket_pre_obj = version_transforms.convert(copy.deepcopy(pre_obj), event.topic.replace("/", ""),
+                                                        self.api_version, downgrade_ver)
 
             if not socket_pre_obj:
                 continue
