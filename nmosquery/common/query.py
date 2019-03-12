@@ -244,7 +244,7 @@ class QueryCommon(object):
             event.clearGrains()
             if socket_pre_obj is None or not self._matches_args(socket_pre_obj, socket.params):
                 # Didn't previously match filter, so should be returned
-                event.addGrainFromObj(pre_obj=None, post_obj=post_obj)
+                event.addGrainFromObj(pre_obj=None, post_obj=socket_post_obj)
             elif socket_post_obj is None or not self._matches_args(socket_post_obj, socket.params):
                 # Doesn't match filter any longer, so shouldn't be returned
                 event.addGrainFromObj(pre_obj=socket_pre_obj, post_obj=None)
