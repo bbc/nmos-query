@@ -15,10 +15,10 @@
 from nmoscommon.webapi import WebAPI, route
 from nmoscommon.nmoscommonconfig import config as _config
 
-from nmosquery.v1_0 import routes as v1_0
-from nmosquery.v1_1 import routes as v1_1
-from nmosquery.v1_2 import routes as v1_2
-from nmosquery.v1_3 import routes as v1_3
+from .v1_0 import routes as v1_0
+from .v1_1 import routes as v1_1
+from .v1_2 import routes as v1_2
+from .v1_3 import routes as v1_3
 
 QUERY_APINAMESPACE = "x-nmos"
 QUERY_APINAME = "query"
@@ -48,12 +48,12 @@ class QueryServiceAPI(WebAPI):
 
     @route('/')
     def __index(self):
-        return (200, [QUERY_APINAMESPACE+"/"])
+        return (200, [QUERY_APINAMESPACE + "/"])
 
-    @route('/'+QUERY_APINAMESPACE+'/')
+    @route('/' + QUERY_APINAMESPACE + '/')
     def __namespaceindex(self):
-        return (200, [QUERY_APINAME+"/"])
+        return (200, [QUERY_APINAME + "/"])
 
-    @route('/'+QUERY_APINAMESPACE+'/'+QUERY_APINAME+'/')
+    @route('/' + QUERY_APINAMESPACE + '/' + QUERY_APINAME + '/')
     def __nameindex(self):
         return (200, [api_version + "/" for api_version in QUERY_APIVERSIONS])

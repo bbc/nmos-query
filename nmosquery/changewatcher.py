@@ -13,8 +13,8 @@
 # limitations under the License.
 
 import gevent
+from .etcd_watch import EtcdEventQueue
 
-import nmosquery.etcd_watch as etcd_watch
 
 class ChangeWatcher(gevent.Greenlet):
     def __init__(self, host, port, handler, logger):
@@ -28,7 +28,7 @@ class ChangeWatcher(gevent.Greenlet):
     def _run(self):
         retries = 0
         secs = [0, 1, 3, 10]  # incrementing retry sleep
-        self.events = etcd_watch.EtcdEventQueue(self.host, self.port, self.logger)
+        self.events = EtcdEventQueue(self.host, self.port, self.logger)
         self.running = True
         while self.running:
             try:

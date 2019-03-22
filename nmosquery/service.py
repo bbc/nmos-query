@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from gevent import monkey; monkey.patch_all()
+from gevent import monkey
+monkey.patch_all()
 
 import json
 import signal
@@ -23,8 +24,8 @@ import os
 from nmoscommon.httpserver import HttpServer
 from nmoscommon.logger import Logger
 from nmoscommon.mdns import MDNSEngine
-from nmosquery.api import QueryServiceAPI, QUERY_APIVERSIONS
 from nmoscommon.utils import getLocalIP
+from .api import QueryServiceAPI, QUERY_APIVERSIONS
 
 reg = {'host': 'localhost', 'port': 4001}
 HOST = getLocalIP()
@@ -33,6 +34,7 @@ DNS_SD_HTTP_PORT = 80
 DNS_SD_HTTPS_PORT = 443
 DNS_SD_NAME = 'query_' + str(HOST)
 DNS_SD_TYPE = '_nmos-query._tcp'
+
 
 class QueryService:
 
@@ -51,7 +53,7 @@ class QueryService:
 
     def start(self):
         if self.running:
-            gevent.signal(signal.SIGINT,  self.sig_handler)
+            gevent.signal(signal.SIGINT, self.sig_handler)
             gevent.signal(signal.SIGTERM, self.sig_handler)
 
         self.running = True
@@ -112,3 +114,8 @@ class QueryService:
                 self.config.update(extra_config)
         except Exception as e:
             self.logger.writeDebug("Exception loading config: {}".format(e))
+
+
+if __name__ == '__main__':
+    Service = QueryService()
+    Service.run()

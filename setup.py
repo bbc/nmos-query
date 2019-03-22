@@ -17,14 +17,13 @@
 from __future__ import print_function
 from setuptools import setup
 import os
-import sys
 
 
 def is_package(path):
     return (
         os.path.isdir(path) and
         os.path.isfile(os.path.join(path, '__init__.py'))
-        )
+    )
 
 
 def find_packages(path, base=""):
@@ -68,7 +67,7 @@ setup(name="registryquery",
       install_requires=packages_required,
       scripts=[],
       data_files=[
-        ('/usr/bin', ['bin/nmosquery'])
+          ('/usr/bin', ['bin/nmosquery'])
       ],
       long_description="Provides a service implementing the NMOS Query API"
       )

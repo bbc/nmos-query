@@ -15,7 +15,6 @@
 # limitations under the License.
 
 import json
-import socket
 import uuid
 
 import nmosquery.util as util
@@ -77,13 +76,13 @@ class QuerySocketsCommon(object):
     # add a socket
     def add_sock(self, opts):
         sock = QuerySocketCommon(rate=opts.get('max_update_rate_ms', 100),
-                           ws_port=self.ws_port,
-                           persist=opts.get('persist', False),
-                           resource_path=opts.get('resource_path', ''),
-                           params=opts.get('params', {}),
-                           secure=opts.get('secure', False),
-                           logger=self.logger,
-                           api_version=opts.get('api_version', 'v1.0'))
+                                 ws_port=self.ws_port,
+                                 persist=opts.get('persist', False),
+                                 resource_path=opts.get('resource_path', ''),
+                                 params=opts.get('params', {}),
+                                 secure=opts.get('secure', False),
+                                 logger=self.logger,
+                                 api_version=opts.get('api_version', 'v1.0'))
         self.sockets.append(sock)
         self.logger.writeDebug('Number of active sockets: {}'.format(len(self.sockets)))
         return sock
@@ -109,7 +108,7 @@ class QuerySocketsCommon(object):
                 return False
         return True
 
-    def get_sock(self, opts, exclude_persist=False): # exclude_persist causes persistent sockets not to be returned
+    def get_sock(self, opts, exclude_persist=False):  # exclude_persist causes persistent sockets not to be returned
         for sock in self.sockets:
             proposed_sock = None
             uid = opts.get('uuid', None)

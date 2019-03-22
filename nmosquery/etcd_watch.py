@@ -23,6 +23,7 @@ import socket
 
 from nmoscommon.logger import Logger
 
+
 def _get_etcd_index(request, logger):
     """
     Return the etcd "index" from the x-etcd-index header of the request.
@@ -36,6 +37,7 @@ def _get_etcd_index(request, logger):
         logger.writeWarning("Unexpected exception getting x-etcd-index: {}".format(ex))
         index = 0
     return index
+
 
 class EtcdEventQueue(object):
     """
@@ -84,7 +86,8 @@ class EtcdEventQueue(object):
                         self._logger.writeWarning("Index decreased! {} -> {}".format(current_index, index))
 
                 elif response.status_code in [400, 404]:
-                    # '/resource' not found in etcd yet, back off for a second and set waitIndex to value of the x-etcd-index header
+                    # '/resource' not found in etcd yet, back
+                    # off for a second and set waitIndex to value of the x-etcd-index header
                     index = int(response.headers.get('x-etcd-index', 0))
                     self._logger.writeInfo("{} not found, wait... waitIndex={}".format(self._base_url, index))
                     gevent.sleep(1)

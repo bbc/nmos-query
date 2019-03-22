@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from gevent import monkey; monkey.patch_all()
+from gevent import monkey
+monkey.patch_all()
 
 import json
 import os
@@ -27,12 +28,12 @@ import nmosquery.util as util
 import requests
 
 from nmoscommon.logger import Logger
-from nmosquery import VALID_TYPES
-from nmosquery.changewatcher import ChangeWatcher
-from nmosquery.etcd_util import etcd_unpack
-from nmosquery.grainevent import GrainEvent
-from nmosquery.common.querysockets import QuerySocketsCommon, QueryFilterCommon
-from nmosquery import version_transforms
+from .. import VALID_TYPES
+from ..changewatcher import ChangeWatcher
+from ..etcd_util import etcd_unpack
+from ..grainevent import GrainEvent
+from .querysockets import QuerySocketsCommon, QueryFilterCommon
+from ..version_transforms import convert
 
 reg = {'host': 'localhost', 'port': 4001}
 WS_PORT = 8870
@@ -90,7 +91,7 @@ class QueryCommon(object):
                     json_repr = None
                     if resource_type != "":
                         json_repr = json.loads(v)
-                        json_repr = version_transforms.convert(copy.deepcopy(json_repr), resource_type,
+                        json_repr = convert(copy.deepcopy(json_repr), resource_type,
                                                                self.api_version, downgrade_ver)
 
                     # If nothing could be downgraded, skip over the object
@@ -231,9 +232,9 @@ class QueryCommon(object):
             if socket.params and "query.downgrade" in socket.params:
                 downgrade_ver = socket.params["query.downgrade"]
 
-            socket_post_obj = version_transforms.convert(copy.deepcopy(post_obj), event.topic.replace("/", ""),
+            socket_post_obj = convert(copy.deepcopy(post_obj), event.topic.replace("/", ""),
                                                          self.api_version, downgrade_ver)
-            socket_pre_obj = version_transforms.convert(copy.deepcopy(pre_obj), event.topic.replace("/", ""),
+            socket_pre_obj = convert(copy.deepcopy(pre_obj), event.topic.replace("/", ""),
                                                         self.api_version, downgrade_ver)
 
             if not socket_post_obj and not socket_pre_obj:
@@ -267,7 +268,7 @@ class QueryCommon(object):
             if socket.params and "query.downgrade" in socket.params:
                 downgrade_ver = socket.params["query.downgrade"]
 
-            socket_pre_obj = version_transforms.convert(copy.deepcopy(pre_obj), event.topic.replace("/", ""),
+            socket_pre_obj = convert(copy.deepcopy(pre_obj), event.topic.replace("/", ""),
                                                         self.api_version, downgrade_ver)
 
             if not socket_pre_obj:
