@@ -3,6 +3,9 @@
 ## 0.6.0
 - Use nmoscommon prefer_hostnames/node_hostname to inform all absolute hrefs
 
+## 0.5.8
+- Added NMOS Security Decorators for OAuth2 Authorization
+
 ## 0.5.7
 - Added python3 to testing and packaging
 
