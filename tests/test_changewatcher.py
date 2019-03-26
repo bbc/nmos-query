@@ -29,11 +29,11 @@ class TestChangeWatcher(unittest.TestCase):
         self.UUT = ChangeWatcher(mock.sentinel.host, mock.sentinel.port, self.handler, self.logger)
 
     @mock.patch('gevent.sleep')
-    @mock.patch('nmosquery.changewatcher.etcd_watch')
-    def test_run(self, etcd_watch, sleep):
+    @mock.patch('nmosquery.changewatcher.EtcdEventQueue')
+    def test_run(self, EtcdEventQueue, sleep):
         """The _run method is called by the greenlet as the body of the `thread', make sure it does what it's supposed to"""
         EVENTS = [ mock.sentinel.event0, mock.sentinel.event1, mock.sentinel.event2, mock.sentinel.exceptional_event ]
-        etcd_watch.EtcdEventQueue.return_value.queue = EVENTS
+        EtcdEventQueue.return_value.queue = EVENTS
         def _process_response(event):
             if event == mock.sentinel.exceptional_event:
                 raise Exception
