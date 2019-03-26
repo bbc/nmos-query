@@ -20,7 +20,7 @@ from flask import request, abort
 from socket import error as socket_error
 from nmosquery import VALID_TYPES
 from nmosquery.common.query import QueryCommon
-from nmosoauth.resource_server.nmos_security import NmosSecurity
+from nmoscommon.auth.nmos_auth import RequiresAuth
 
 
 class RoutesCommon(object):
@@ -70,7 +70,7 @@ class RoutesCommon(object):
         return (200, obj)
 
     @route('/subscriptions', methods=['POST'])
-    @NmosSecurity()
+    @RequiresAuth()
     def __subscriptions_post(self):
         try:
             data = json.loads(request.get_data())
@@ -114,7 +114,7 @@ class RoutesCommon(object):
 
     def websocket_opened(self, handler_func):
         @wraps(handler_func)
-        @NmosSecurity()
+        @RequiresAuth()
         def inner_func(ws):
             ws_args_str = ws.environ['QUERY_STRING']
             (_, query_args) = self.query.query_sockets.parse_env_str(ws_args_str)
