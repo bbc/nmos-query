@@ -17,6 +17,7 @@
 # You will need to edit this file to suit your needs before running the tests.
 
 import unittest
+import six
 
 from nmosquery.v1_1 import query
 
@@ -59,7 +60,7 @@ class TestQuery(unittest.TestCase):
              u"id": u"90461aaa-a45a-48f0-ba2e-de51b45ce4ce", u"label": u"test_node", "services": [{"type": "urn:x-nmos-opensourceprivatenamespace:service:mdnsbridge/v1.0"}]}
         ]
         actual = self.query.parse_services_dict(NODES_RESPONSE, "nodes/", {}, verbose=True)
-        self.assertItemsEqual(expected, actual)
+        six.assertCountEqual(self, expected, actual)
 
     def test_parse_services_dict_condensed(self):
         """ When not in verbose mode, return just node IDs """
@@ -67,33 +68,33 @@ class TestQuery(unittest.TestCase):
                     u"007ff4e5-fe72-4c4b-b858-4c5f37dff946",
                     u"90461aaa-a45a-48f0-ba2e-de51b45ce4ce"]
         actual = self.query.parse_services_dict(NODES_RESPONSE, "nodes/", {}, verbose=False)
-        self.assertItemsEqual(expected, actual)
+        six.assertCountEqual(self, expected, actual)
 
     def test_parse_services_dict_single(self):
         expected = [{u'href': u'http://127.0.0.1:1234/path',
                      u'id': u'90461aaa-a45a-48f0-ba2e-de51b45ce4ce', u'label': u'test_node', "services": [{"type": "urn:x-nmos-opensourceprivatenamespace:service:mdnsbridge/v1.0"}]}]
         actual = self.query.parse_services_dict(NODES_RESPONSE, "nodes/90461aaa-a45a-48f0-ba2e-de51b45ce4ce", {}, verbose=True)
-        self.assertItemsEqual(expected, actual)
+        six.assertCountEqual(self, expected, actual)
 
     def test_parse_services_dict_with_args_no_result(self):
         args = {'label': 'nonsense'}
         expected = []
         actual = self.query.parse_services_dict(NODES_RESPONSE, "nodes/90461aaa-a45a-48f0-ba2e-de51b45ce4ce", args, verbose=True)
-        self.assertItemsEqual(expected, actual)
+        six.assertCountEqual(self, expected, actual)
 
     def test_parse_services_dict_with_args_one_result(self):
         args = {'label': 'hostname.example.com'}
         expected = [{u"href": "http://192.168.100.100:12345/",
                      u"id": u"007ff4e5-fe72-4c4b-b858-4c5f37dff946", u"label": u"hostname.example.com", "services": [{"type": "urn:x-nmos-opensourceprivatenamespace:service:pipelinemanager/v1.0"}]}]
         actual = self.query.parse_services_dict(NODES_RESPONSE, "nodes/", args, verbose=True)
-        self.assertItemsEqual(expected, actual)
+        six.assertCountEqual(self, expected, actual)
 
     def test_parse_services_dict_with_array_args_one_result(self):
         args = {'services.type': 'urn:x-nmos-opensourceprivatenamespace:service:pipelinemanager/v1.0'}
         expected = [{u"href": "http://192.168.100.100:12345/",
                      u"id": u"007ff4e5-fe72-4c4b-b858-4c5f37dff946", u"label": u"hostname.example.com", "services": [{"type": "urn:x-nmos-opensourceprivatenamespace:service:pipelinemanager/v1.0"}]}]
         actual = self.query.parse_services_dict(NODES_RESPONSE, "nodes/", args, verbose=True)
-        self.assertItemsEqual(expected, actual)
+        six.assertCountEqual(self, expected, actual)
 
     def test_parse_services_dict_with_args_two_results(self):
         expected = [
@@ -103,7 +104,7 @@ class TestQuery(unittest.TestCase):
              u"id": u"90461aaa-a45a-48f0-ba2e-de51b45ce4ce", u"label": u"test_node", "services": [{"type": "urn:x-nmos-opensourceprivatenamespace:service:mdnsbridge/v1.0"}]}
         ]
         actual = self.query.parse_services_dict(NODES_RESPONSE, "nodes/", {'label': 'test_node'}, verbose=True)
-        self.assertItemsEqual(expected, actual)
+        six.assertCountEqual(self, expected, actual)
 
     def test_summarise(self):
         """ it should leave structure alone """

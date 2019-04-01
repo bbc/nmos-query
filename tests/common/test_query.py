@@ -17,6 +17,7 @@ import mock
 
 import uuid
 import json
+import six
 
 from nmosquery.common.query import QueryCommon, reg
 from nmosquery import version_transforms
@@ -223,7 +224,7 @@ etcd_test_data_string = json.dumps(etcd_test_data)
 
 def remove_at_keys(data):
     data = copy.deepcopy(data)
-    removals = (x for x in data.keys() if x.startswith("@_"))
+    removals = [x for x in data.keys() if x.startswith("@_")]
     for key in removals:
         del data[key]
 
@@ -281,7 +282,7 @@ class TestQueryCommon(unittest.TestCase):
                        "{}\n")
                 msg = msg.format(path, args, v, (code, text), json.dumps(r, indent=4), json.dumps(expected, indent=4))
                 if r is not None:
-                    self.assertItemsEqual(r, expected, msg)
+                    six.assertCountEqual(self, r, expected, msg)
                 else:
                     self.assertEqual(r, expected, msg)
 
@@ -345,7 +346,7 @@ Expected:
 
 """.format(socket_id, v, json.dumps(sockets, indent=4), json.dumps([ str(u) for u in uuids ], indent=4), json.dumps(rval, indent=4), json.dumps(expected, indent=4))
                 if isinstance(rval, list):
-                    self.assertItemsEqual(rval, expected, msg=msg)
+                    six.assertCountEqual(self, rval, expected, msg=msg)
                 else:
                     self.assertEqual(rval, expected, msg=msg)
 

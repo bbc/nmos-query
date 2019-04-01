@@ -1,5 +1,8 @@
 # NMOS Query API Implementation Changelog
 
+## 0.5.7
+- Added python3 to testing and packaging
+
 ## 0.5.6
 - Fix bug causing some missing messages via WebSockets
 - Fix bugs responding when multiple similar WebSockets are open

@@ -169,7 +169,7 @@ class EtcdEventQueue(object):
 
     def stop(self):
         self._logger.writeInfo("Stopping service")
-        print "stopping"
+        print("stopping")
         self._alive = False
         self._greenlet.kill(timeout=5)
         self.queue.put(StopIteration)
@@ -193,6 +193,6 @@ if __name__ == '__main__':
             if value in exist:
                 exist.remove(value)
         else:
-            print event
+            print(event)
 
-        print len(exist), q.queue.qsize(), time.time()
+        print((len(exist), q.queue.qsize(), time.time()))

@@ -19,7 +19,7 @@ def translate_resourcetypes(url):
     trimmed = url.strip('/')
     split = trimmed.split('/')
     if len(split) >= 2:
-        return "{}/{}".format(split[0], string.lower(split[1]))
+        return "{}/{}".format(split[0], split[1].lower())
     elif len(split) == 1:
         return split[0]
     # It should be literally impossible for the following to happen

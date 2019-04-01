@@ -14,6 +14,7 @@
 
 import unittest
 import mock
+import six
 
 class GreenletStub(object):
     pass
@@ -43,12 +44,13 @@ class TestChangeWatcher(unittest.TestCase):
 
         self.UUT._run()
 
-        self.assertItemsEqual(self.handler._process_response.mock_calls, [ mock.call(mock.sentinel.event0),
-                                                                           mock.call(mock.sentinel.event1),
-                                                                           mock.call(mock.sentinel.event2),
-                                                                           mock.call(mock.sentinel.exceptional_event),
-                                                                           mock.call(mock.sentinel.exceptional_event),
-                                                                           mock.call(mock.sentinel.exceptional_event),
-                                                                           mock.call(mock.sentinel.exceptional_event)])
+        six.assertCountEqual(self, self.handler._process_response.mock_calls,
+                             [mock.call(mock.sentinel.event0),
+                              mock.call(mock.sentinel.event1),
+                              mock.call(mock.sentinel.event2),
+                              mock.call(mock.sentinel.exceptional_event),
+                              mock.call(mock.sentinel.exceptional_event),
+                              mock.call(mock.sentinel.exceptional_event),
+                              mock.call(mock.sentinel.exceptional_event)])
         self.assertListEqual(sleep.mock_calls, [ mock.call(1), mock.call(3), mock.call(10), mock.call(10) ])
         self.handler.query_sockets.del_all_socks.assert_called_once_with()
