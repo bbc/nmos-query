@@ -27,7 +27,6 @@ Requires:       python-ws4py
 Requires:       ips-etcd
 Requires:       ips-reverseproxy-common
 Requires:       nmoscommon
-Requires:       python-nmos-oauth
 %{?systemd_requires}
 
 %description
