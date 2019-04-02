@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import httplib
-import urlparse
+import six.moves.http_client as http_client
+import six.moves.urllib.parse as urlparse
 
 def __http(addr, port, method, url, payload=None):
     try:
         # print '==>',method,addr,port,url,payload
         headers = {"Content-type": "application/x-www-form-urlencoded"}
-        conn = httplib.HTTPConnection(addr, port)
+        conn = http_client.HTTPConnection(addr, port)
         conn.request(method, url, payload, headers)
         resp = conn.getresponse()
 

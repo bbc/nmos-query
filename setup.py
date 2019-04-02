@@ -52,11 +52,12 @@ packages_required = [
     "flask>=0.10.1",
     "systemd>=0.16.1",
     "ws4py>=0.3.4",
-    "requests>=0.9.3"
+    "requests>=0.9.3",
+    "six"
 ]
 
 setup(name="registryquery",
-      version="0.5.6",
+      version="0.5.7",
       description="BBC implementation of an AMWA NMOS Query API",
       url='https://github.com/bbc/nmos-query',
       author='Peter Brightwell',

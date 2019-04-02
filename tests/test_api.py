@@ -337,7 +337,7 @@ Expected:
         socket.subscribers = []
         socket.add_subscriber.side_effect = lambda x : socket.subscribers.append(x)
         socket.persist = persist
-        ws = mock.MagicMock(name="ws", environ={'QUERY_STRING' : '&'.join(('='.join((k,v)) for (k,v) in args.iteritems()))})
+        ws = mock.MagicMock(name="ws", environ={'QUERY_STRING' : '&'.join(('='.join((k,v)) for (k,v) in args.items()))})
         ws.receive.side_effect = [ msg, raise_exception ]
 
         self.UUT.websockets['/x-nmos/query/' + v + '/ws/'][0](ws)

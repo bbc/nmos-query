@@ -21,6 +21,8 @@ import string
 import uuid
 import copy
 
+from six import string_types
+
 import nmosquery.util as util
 import requests
 
@@ -77,7 +79,7 @@ class QueryCommon(object):
         retval = []
 
         for k, v in obj.items():
-            if any(rtype in k for rtype in VALID_TYPES) and type(v) is unicode:
+            if any(rtype in k for rtype in VALID_TYPES) and isinstance(v, string_types):
                 if self._matches_path(k, pattern):
                     downgrade_ver = None
                     if args and "query.downgrade" in args:
@@ -123,7 +125,7 @@ class QueryCommon(object):
         if not json_repr:
             return None
 
-        removals = (x for x in json_repr.keys() if x.startswith("@_"))
+        removals = [x for x in json_repr.keys() if x.startswith("@_")]
         for key in removals:
             del json_repr[key]
 
@@ -158,7 +160,7 @@ class QueryCommon(object):
     def get_data_for_path(self, path, args):
 
         # Set verbosity
-        verbose = not string.lower(args.get('verbose', '')) == 'false'
+        verbose = (args.get('verbose', '').lower() != 'false')
 
         url = 'http://%s:%i/v2/keys/resource/?recursive=true' % (reg['host'], reg['port'])
         response = requests.request('GET', url, proxies={'http': ''})
