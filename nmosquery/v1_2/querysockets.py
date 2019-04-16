@@ -14,10 +14,12 @@
 
 from nmosquery.common.querysockets import QuerySocketCommon, QuerySocketsCommon, QueryFilterCommon
 
+
 class QuerySocket(QuerySocketCommon):
     def __init__(self, resource_path, ws_port, rate=100, persist=False, params=None, secure=False, logger=None):
         super(QuerySocket, self).__init__(resource_path, ws_port, rate, persist, params, secure, logger, "v1.2")
         self.secure = secure
+
 
 class QuerySockets(QuerySocketsCommon):
     def __init__(self, ws_port, logger=None):
@@ -45,6 +47,7 @@ class QuerySockets(QuerySocketsCommon):
         retval = super(QuerySockets, self)._summarise(obj)
         retval['secure'] = obj.secure
         return retval
+
 
 class QueryFilter(QueryFilterCommon):
     def __init__(self):

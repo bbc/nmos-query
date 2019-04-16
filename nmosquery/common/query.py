@@ -17,8 +17,7 @@ monkey.patch_all()
 
 import json
 import os
-import socket
-import string
+import socket as socketlib  # To avoid namespace clashes
 import uuid
 import copy
 
@@ -58,7 +57,7 @@ class QueryCommon(object):
 
     # generates a predictable UID for this process
     def gen_source_id(self):
-        seed = '{}{}'.format(os.getpid(), socket.gethostname())
+        seed = '{}{}'.format(os.getpid(), socketlib.gethostname())
         uid = str(uuid.uuid3(uuid.NAMESPACE_DNS, seed))
         return uid
 
@@ -91,8 +90,11 @@ class QueryCommon(object):
                     json_repr = None
                     if resource_type != "":
                         json_repr = json.loads(v)
-                        json_repr = convert(copy.deepcopy(json_repr), resource_type,
-                                                               self.api_version, downgrade_ver)
+                        json_repr = convert(
+                            copy.deepcopy(json_repr),
+                            resource_type,
+                            self.api_version, downgrade_ver
+                        )
 
                     # If nothing could be downgraded, skip over the object
                     if not json_repr:
@@ -232,10 +234,17 @@ class QueryCommon(object):
             if socket.params and "query.downgrade" in socket.params:
                 downgrade_ver = socket.params["query.downgrade"]
 
-            socket_post_obj = convert(copy.deepcopy(post_obj), event.topic.replace("/", ""),
-                                                         self.api_version, downgrade_ver)
-            socket_pre_obj = convert(copy.deepcopy(pre_obj), event.topic.replace("/", ""),
-                                                        self.api_version, downgrade_ver)
+            socket_post_obj = convert(
+                copy.deepcopy(post_obj),
+                event.topic.replace("/", ""),
+                self.api_version, downgrade_ver
+            )
+
+            socket_pre_obj = convert(
+                copy.deepcopy(pre_obj),
+                event.topic.replace("/", ""),
+                self.api_version, downgrade_ver
+            )
 
             if not socket_post_obj and not socket_pre_obj:
                 continue
@@ -268,8 +277,11 @@ class QueryCommon(object):
             if socket.params and "query.downgrade" in socket.params:
                 downgrade_ver = socket.params["query.downgrade"]
 
-            socket_pre_obj = convert(copy.deepcopy(pre_obj), event.topic.replace("/", ""),
-                                                        self.api_version, downgrade_ver)
+            socket_pre_obj = convert(
+                copy.deepcopy(pre_obj),
+                event.topic.replace("/", ""),
+                self.api_version, downgrade_ver
+            )
 
             if not socket_pre_obj:
                 continue
