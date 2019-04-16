@@ -23,7 +23,8 @@ from nmoscommon import nmoscommonconfig
 
 
 class QuerySocketCommon(object):
-    def __init__(self, resource_path, ws_port, rate=100, persist=False, params=None, secure=False, logger=None, api_version="v1.0"):
+    def __init__(self, resource_path, ws_port, rate=100, persist=False,
+                 params=None, secure=False, logger=None, api_version="v1.0"):
         if params is None:
             params = {}
         self.logger = logger

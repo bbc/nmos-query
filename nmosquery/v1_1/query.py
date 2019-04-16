@@ -15,6 +15,7 @@
 from nmosquery.common.query import QueryCommon, WS_PORT
 from nmosquery.v1_1.querysockets import QuerySockets, QueryFilter
 
+
 class Query(QueryCommon):
     def __init__(self, logger=None):
         super(Query, self).__init__(logger, "v1.1")

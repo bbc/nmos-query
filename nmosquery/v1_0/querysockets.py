@@ -14,9 +14,11 @@
 
 from nmosquery.common.querysockets import QuerySocketCommon, QuerySocketsCommon, QueryFilterCommon
 
+
 class QuerySocket(QuerySocketCommon):
     def __init__(self, resource_path, ws_port, rate=100, persist=False, params=None, secure=False, logger=None):
         super(QuerySocket, self).__init__(resource_path, ws_port, rate, persist, params, secure, logger, "v1.0")
+
 
 class QuerySockets(QuerySocketsCommon):
     def __init__(self, ws_port, logger=None):
@@ -38,6 +40,7 @@ class QuerySockets(QuerySocketsCommon):
     def _check_args(self, s, obj):
         arg_checker = QueryFilter()
         return arg_checker.check_args(s.params, obj)
+
 
 class QueryFilter(QueryFilterCommon):
     def __init__(self):
