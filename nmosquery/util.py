@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import string
 
 def translate_resourcetypes(url):
     """ translate urls such as /sources/{uid}/ -> sources/{uid} """
@@ -23,8 +22,9 @@ def translate_resourcetypes(url):
     elif len(split) == 1:
         return split[0]
     # It should be literally impossible for the following to happen
-    else: # pragma: no cover
+    else:  # pragma: no cover
         return ''
+
 
 def get_resourcetypes(url):
     """ Extract the resource type from a url in form /resource/{type} or just {type}/ """
