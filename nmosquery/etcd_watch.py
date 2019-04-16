@@ -164,9 +164,12 @@ class EtcdEventQueue(object):
                     #  https://github.com/coreos/etcd/blob/master/Documentation/errorcode.md
                     self._logger.writeInfo("error: http:{}, etcd:{}".format(req.status_code, json.get('errorCode', 0)))
                     if json.get('errorCode', 0) == 401:
-                        # Index has been cleared. This may cause missed events, so send an (invented) sentinel message to queue.
+                        # Index has been cleared.
+                        # This may cause missed events, so send an (invented) sentinel message to queue.
                         new_index = self._get_index(current_index)
-                        self._logger.writeWarning("etcd history not available; skipping {} -> {}".format(current_index, new_index))
+                        self._logger.writeWarning(
+                            "etcd history not available; skipping {} -> {}".format(current_index, new_index)
+                        )
                         self.queue.put({'action': 'index_skip', 'from': current_index, 'to': new_index})
                         current_index = new_index
 
