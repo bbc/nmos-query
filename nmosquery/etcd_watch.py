@@ -15,13 +15,13 @@
 from gevent import monkey
 monkey.patch_all()
 
-import gevent
-import gevent.queue
-import requests
-import time
-import socket
+import gevent # noqa E402
+import gevent.queue # noqa E402
+import requests # noqa E402
+import time # noqa E402
+import socket # noqa E402
 
-from nmoscommon.logger import Logger
+from nmoscommon.logger import Logger # noqa E402
 
 
 def _get_etcd_index(request, logger):
