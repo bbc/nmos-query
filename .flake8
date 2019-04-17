@@ -1,3 +1,9 @@
 [flake8]
 max-line-length = 120
-ignore = E402  # E402 = Module level import not at top of file (due to monkey patching)
+exclude =
+    .git,
+    .tox,
+    dist,
+    deb_dist,
+    __pycache__,
+    tests

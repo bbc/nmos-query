@@ -15,24 +15,24 @@
 from gevent import monkey
 monkey.patch_all()
 
-import json
-import os
-import socket as socketlib  # To avoid namespace clashes
-import uuid
-import copy
+import json # noqa E402
+import os # noqa E402
+import socket as socketlib # noqa E402 # To avoid namespace clashes
+import uuid # noqa E402
+import copy # noqa E402
 
-from six import string_types
+from six import string_types # noqa E402
 
-import nmosquery.util as util
-import requests
+import nmosquery.util as util # noqa E402
+import requests # noqa E402
 
-from nmoscommon.logger import Logger
-from .. import VALID_TYPES
-from ..changewatcher import ChangeWatcher
-from ..etcd_util import etcd_unpack
-from ..grainevent import GrainEvent
-from .querysockets import QuerySocketsCommon, QueryFilterCommon
-from ..version_transforms import convert
+from nmoscommon.logger import Logger # noqa E402
+from .. import VALID_TYPES # noqa E402
+from ..changewatcher import ChangeWatcher # noqa E402
+from ..etcd_util import etcd_unpack # noqa E402
+from ..grainevent import GrainEvent # noqa E402
+from .querysockets import QuerySocketsCommon, QueryFilterCommon # noqa E402
+from ..version_transforms import convert # noqa E402
 
 reg = {'host': 'localhost', 'port': 4001}
 WS_PORT = 8870
