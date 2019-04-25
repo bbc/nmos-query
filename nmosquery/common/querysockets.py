@@ -76,14 +76,15 @@ class QuerySocketsCommon(object):
 
     # add a socket
     def add_sock(self, opts):
-        sock = QuerySocketCommon(rate=opts.get('max_update_rate_ms', 100),
-                                 ws_port=self.ws_port,
-                                 persist=opts.get('persist', False),
-                                 resource_path=opts.get('resource_path', ''),
-                                 params=opts.get('params', {}),
-                                 secure=opts.get('secure', False),
-                                 logger=self.logger,
-                                 api_version=opts.get('api_version', 'v1.0'))
+        sock = QuerySocketCommon(
+            rate=opts.get('max_update_rate_ms', 100),
+            ws_port=self.ws_port,
+            persist=opts.get('persist', False),
+            resource_path=opts.get('resource_path', ''),
+            params=opts.get('params', {}),
+            secure=opts.get('secure', False),
+            logger=self.logger,
+            api_version=opts.get('api_version', 'v1.0'))
         self.sockets.append(sock)
         self.logger.writeDebug('Number of active sockets: {}'.format(len(self.sockets)))
         return sock
