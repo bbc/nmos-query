@@ -45,6 +45,8 @@ class QuerySocketCommon(object):
             scheme = "wss"
         if nmoscommonconfig.config.get('node_hostname', None) is not None:
             host = nmoscommonconfig.config['node_hostname']
+        elif nmoscommonconfig.config.get('prefer_hostnames', False) is True:
+            host = socket.getfqdn()
         elif nmoscommonconfig.config.get('prefer_ipv6', False) is False:
             host = getLocalIP()
         else:
