@@ -15,13 +15,14 @@
 from gevent import monkey
 monkey.patch_all()
 
-import gevent
-import gevent.queue
-import requests
-import time
-import socket
+import gevent # noqa E402
+import gevent.queue # noqa E402
+import requests # noqa E402
+import time # noqa E402
+import socket # noqa E402
 
-from nmoscommon.logger import Logger
+from nmoscommon.logger import Logger # noqa E402
+
 
 def _get_etcd_index(request, logger):
     """
@@ -36,6 +37,7 @@ def _get_etcd_index(request, logger):
         logger.writeWarning("Unexpected exception getting x-etcd-index: {}".format(ex))
         index = 0
     return index
+
 
 class EtcdEventQueue(object):
     """
@@ -84,7 +86,8 @@ class EtcdEventQueue(object):
                         self._logger.writeWarning("Index decreased! {} -> {}".format(current_index, index))
 
                 elif response.status_code in [400, 404]:
-                    # '/resource' not found in etcd yet, back off for a second and set waitIndex to value of the x-etcd-index header
+                    # '/resource' not found in etcd yet, back
+                    # off for a second and set waitIndex to value of the x-etcd-index header
                     index = int(response.headers.get('x-etcd-index', 0))
                     self._logger.writeInfo("{} not found, wait... waitIndex={}".format(self._base_url, index))
                     gevent.sleep(1)
@@ -161,9 +164,12 @@ class EtcdEventQueue(object):
                     #  https://github.com/coreos/etcd/blob/master/Documentation/errorcode.md
                     self._logger.writeInfo("error: http:{}, etcd:{}".format(req.status_code, json.get('errorCode', 0)))
                     if json.get('errorCode', 0) == 401:
-                        # Index has been cleared. This may cause missed events, so send an (invented) sentinel message to queue.
+                        # Index has been cleared.
+                        # This may cause missed events, so send an (invented) sentinel message to queue.
                         new_index = self._get_index(current_index)
-                        self._logger.writeWarning("etcd history not available; skipping {} -> {}".format(current_index, new_index))
+                        self._logger.writeWarning(
+                            "etcd history not available; skipping {} -> {}".format(current_index, new_index)
+                        )
                         self.queue.put({'action': 'index_skip', 'from': current_index, 'to': new_index})
                         current_index = new_index
 

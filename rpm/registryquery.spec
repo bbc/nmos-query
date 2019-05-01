@@ -1,7 +1,7 @@
 %global module_name registryquery
 
 Name: 			python-%{module_name}
-Version: 		0.6.0
+Version: 		0.7.0
 Release: 		1%{?dist}
 License: 		Internal Licence
 Summary: 		API interface to IP Studio service registry
@@ -26,7 +26,7 @@ Requires:       python-requests           >= 0.9.3
 Requires:       python-ws4py
 Requires:       ips-etcd
 Requires:       ips-reverseproxy-common
-Requires:	nmoscommon
+Requires:       nmoscommon
 %{?systemd_requires}
 
 %description

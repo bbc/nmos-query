@@ -20,6 +20,8 @@ from flask import request, abort
 from socket import error as socket_error
 from nmosquery import VALID_TYPES
 from nmosquery.common.query import QueryCommon
+from nmoscommon.auth.nmos_auth import RequiresAuth
+
 
 class RoutesCommon(object):
 
@@ -37,7 +39,7 @@ class RoutesCommon(object):
     def __versionindex(self):
         obj = ["subscriptions/"]
         for ips_type in VALID_TYPES:
-            obj.append(ips_type+"/")
+            obj.append(ips_type + "/")
         return (200, obj)
 
     @route('/<ips_type>/')
@@ -68,6 +70,7 @@ class RoutesCommon(object):
         return (200, obj)
 
     @route('/subscriptions', methods=['POST'])
+    @RequiresAuth()
     def __subscriptions_post(self):
         try:
             data = json.loads(request.get_data())
@@ -87,6 +90,7 @@ class RoutesCommon(object):
         return (200, obj)
 
     @route('/subscriptions/<socket_id>', methods=['GET', 'DELETE'])
+    @RequiresAuth()
     def __subscriptions_id(self, socket_id):
         self.logger.writeDebug('subscriptions')
         obj = self.query.get_ws_subscribers(socket_id)
@@ -106,16 +110,17 @@ class RoutesCommon(object):
 
     @on_json('/ws/')
     def __ws(self, ws, msg, **kwargs):
-        self.logger.writeInfo("{} ws {!r}, msg: {!r}, kwargs: {!r}".format(self.api_version, ws, msg, kwargs))
+        self.logger.writeInfo("{} ws: {!r}, msg: {!r}, kwargs: {!r}".format(self.api_version, ws, msg, kwargs))
         return
 
     def websocket_opened(self, handler_func):
         @wraps(handler_func)
+        @RequiresAuth()
         def inner_func(ws):
             ws_args_str = ws.environ['QUERY_STRING']
             (_, query_args) = self.query.query_sockets.parse_env_str(ws_args_str)
             uid = query_args.get('uid', None)
-            self.logger.writeDebug('handle_sock for ID ' + uid)
+            self.logger.writeDebug('handle_sock for ID {}'.format(uid))
 
             # does sock exist
             socket = self.query.query_sockets.get_sock({'uuid': uid})
@@ -162,7 +167,9 @@ class RoutesCommon(object):
                                 self.logger.writeDebug("Removing socket {} for good.".format(uid))
                                 self.query.query_sockets.sockets.remove(socket)
                         else:
-                            self.logger.writeError("Should have found socket {} in query_sockets, didn't. Investigate.".format(uid))
+                            self.logger.writeError(
+                                "Should have found socket {} in query_sockets, didn't. Investigate.".format(uid)
+                            )
 
                     break
 

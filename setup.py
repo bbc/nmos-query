@@ -17,14 +17,12 @@
 from __future__ import print_function
 from setuptools import setup
 import os
-import sys
 
 
 def is_package(path):
     return (
-        os.path.isdir(path) and
-        os.path.isfile(os.path.join(path, '__init__.py'))
-        )
+        os.path.isdir(path) and os.path.isfile(os.path.join(path, '__init__.py'))
+    )
 
 
 def find_packages(path, base=""):
@@ -56,19 +54,20 @@ packages_required = [
     "six"
 ]
 
-setup(name="registryquery",
-      version="0.6.0",
-      description="BBC implementation of an AMWA NMOS Query API",
-      url='https://github.com/bbc/nmos-query',
-      author='Peter Brightwell',
-      author_email='peter.brightwell@bbc.co.uk',
-      license='Apache 2',
-      packages=package_names,
-      package_dir=packages,
-      install_requires=packages_required,
-      scripts=[],
-      data_files=[
+setup(
+    name="registryquery",
+    version="0.7.0",
+    description="BBC implementation of an AMWA NMOS Query API",
+    url='https://github.com/bbc/nmos-query',
+    author='Peter Brightwell',
+    author_email='peter.brightwell@bbc.co.uk',
+    license='Apache 2',
+    packages=package_names,
+    package_dir=packages,
+    install_requires=packages_required,
+    scripts=[],
+    data_files=[
         ('/usr/bin', ['bin/nmosquery'])
-      ],
-      long_description="Provides a service implementing the NMOS Query API"
-      )
+    ],
+    long_description="Provides a service implementing the NMOS Query API"
+)

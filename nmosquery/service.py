@@ -12,19 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from gevent import monkey; monkey.patch_all()
+from gevent import monkey
+monkey.patch_all()
 
-import json
-import signal
-import time
-import gevent
-import os
+import json # noqa E402
+import signal # noqa E402
+import time # noqa E402
+import gevent # noqa E402
+import os # noqa E402
 
-from nmoscommon.httpserver import HttpServer
-from nmoscommon.logger import Logger
-from nmoscommon.mdns import MDNSEngine
-from nmosquery.api import QueryServiceAPI, QUERY_APIVERSIONS
-from nmoscommon.utils import getLocalIP
+from nmoscommon.httpserver import HttpServer # noqa E402
+from nmoscommon.logger import Logger # noqa E402
+from nmoscommon.mdns import MDNSEngine # noqa E402
+from nmoscommon.utils import getLocalIP # noqa E402
+from .api import QueryServiceAPI, QUERY_APIVERSIONS # noqa E402
 
 reg = {'host': 'localhost', 'port': 4001}
 HOST = getLocalIP()
@@ -33,6 +34,7 @@ DNS_SD_HTTP_PORT = 80
 DNS_SD_HTTPS_PORT = 443
 DNS_SD_NAME = 'query_' + str(HOST)
 DNS_SD_TYPE = '_nmos-query._tcp'
+
 
 class QueryService:
 
@@ -51,7 +53,7 @@ class QueryService:
 
     def start(self):
         if self.running:
-            gevent.signal(signal.SIGINT,  self.sig_handler)
+            gevent.signal(signal.SIGINT, self.sig_handler)
             gevent.signal(signal.SIGTERM, self.sig_handler)
 
         self.running = True
@@ -112,3 +114,8 @@ class QueryService:
                 self.config.update(extra_config)
         except Exception as e:
             self.logger.writeDebug("Exception loading config: {}".format(e))
+
+
+if __name__ == '__main__':
+    Service = QueryService()
+    Service.run()
