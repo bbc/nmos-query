@@ -15,17 +15,17 @@
 from gevent import monkey
 monkey.patch_all()
 
-import json
-import signal
-import time
-import gevent
-import os
+import json # noqa E402
+import signal # noqa E402
+import time # noqa E402
+import gevent # noqa E402
+import os # noqa E402
 
-from nmoscommon.httpserver import HttpServer
-from nmoscommon.logger import Logger
-from nmoscommon.mdns import MDNSEngine
-from nmoscommon.utils import getLocalIP
-from .api import QueryServiceAPI, QUERY_APIVERSIONS
+from nmoscommon.httpserver import HttpServer # noqa E402
+from nmoscommon.logger import Logger # noqa E402
+from nmoscommon.mdns import MDNSEngine # noqa E402
+from nmoscommon.utils import getLocalIP # noqa E402
+from .api import QueryServiceAPI, QUERY_APIVERSIONS # noqa E402
 
 reg = {'host': 'localhost', 'port': 4001}
 HOST = getLocalIP()

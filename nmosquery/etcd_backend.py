@@ -15,6 +15,7 @@
 import six.moves.http_client as http_client
 import six.moves.urllib.parse as urlparse
 
+
 def __http(addr, port, method, url, payload=None):
     try:
         # print '==>',method,addr,port,url,payload
@@ -36,19 +37,21 @@ def __http(addr, port, method, url, payload=None):
             else:
                 return __http(split_netloc[0], port, method, url, payload)
 
-        resp.data = resp.read() # hack
+        resp.data = resp.read()  # hack
         # print '<==',resp.status, resp.data, resp.reason, resp.getheaders()
         return resp
 
     finally:
         conn.close()
 
+
 def put(key, value, ttl=None, port=4001):
     value = "value={}".format(value)
     if ttl:
-      value += "&ttl={}".format(ttl)
+        value += "&ttl={}".format(ttl)
 
     return __http("localhost", port, "PUT", "/v2/keys{}".format(key), value)
+
 
 def delete(key, port=4001):
     return __http("localhost", port, "DELETE", "/v2/keys{}?recursive=true".format(key))

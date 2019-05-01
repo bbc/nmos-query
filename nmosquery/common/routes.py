@@ -166,7 +166,9 @@ class RoutesCommon(object):
                                 self.logger.writeDebug("Removing socket {} for good.".format(uid))
                                 self.query.query_sockets.sockets.remove(socket)
                         else:
-                            self.logger.writeError("Should have found socket {} in query_sockets, didn't. Investigate.".format(uid))
+                            self.logger.writeError(
+                                "Should have found socket {} in query_sockets, didn't. Investigate.".format(uid)
+                            )
 
                     break
 

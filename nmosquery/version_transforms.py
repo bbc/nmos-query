@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 def convert(obj, rtype, target_ver, downgrade_ver=None):
     # Ensure an API version is set on the object
     if "@_apiversion" not in obj:
