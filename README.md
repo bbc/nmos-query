@@ -25,6 +25,26 @@ pip install setuptools
 sudo python setup.py install
 ```
 
+## Configuration
+
+The Query API makes use of two configuration files. The first is native to the Query API and is described below. The second forms part of the [NMOS Common Library](https://github.com/bbc/nmos-common) and is described in that repository. Note that you will likely have to configure items in both files.
+
+The native Query API configuration should consist of a JSON object in the file `/etc/ips-regquery/config.json`. The following attributes may be set within the object:
+
+*   **priority:** \[integer\] Sets a priority value for this Query API instance between 0 and 255. A value of 100+ indicates a development rather than production instance. Default: 100.
+*   **https_mode:** \[string\] Switches the API between HTTP and HTTPS operation. "disabled" indicates HTTP mode is in use, "enabled" indicates HTTPS mode is in use. Default: "disabled".
+*   **enable_mdns:** \[boolean\] Provides a mechanism to disable mDNS announcements in an environment where unicast DNS is preferred. Default: true.
+
+An example configuration file is shown below:
+
+```json
+{
+  "priority": "30",
+  "https_mode": "enabled",
+  "enable_mdns": false
+}
+```
+
 ## Running the Query API
 
 ### Non-blocking
