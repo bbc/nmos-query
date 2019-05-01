@@ -16,6 +16,7 @@
 
 import json
 import uuid
+import socket
 
 import nmosquery.util as util
 from nmoscommon.utils import getLocalIP
