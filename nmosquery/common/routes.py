@@ -90,6 +90,7 @@ class RoutesCommon(object):
         return (200, obj)
 
     @route('/subscriptions/<socket_id>', methods=['GET', 'DELETE'])
+    @RequiresAuth()
     def __subscriptions_id(self, socket_id):
         self.logger.writeDebug('subscriptions')
         obj = self.query.get_ws_subscribers(socket_id)
