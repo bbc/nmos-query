@@ -1,6 +1,6 @@
 # NMOS Query API Implementation Changelog
 
-## 0.7.0
+## 0.7.1
 - Fix missing files in Python 3 Debian package
 
 ## 0.7.0
