@@ -1,7 +1,10 @@
 # NMOS Query API Implementation Changelog
 
+## 0.7.1
+- Fix missing files in Python 3 Debian package
+
 ## 0.7.0
-Added NMOS Security Decorators for OAuth2 Authorization and fixed linting
+- Added NMOS Security Decorators for OAuth2 Authorization and fixed linting
 
 ## 0.6.0
 - Use nmoscommon prefer_hostnames/node_hostname to inform all absolute hrefs

@@ -56,7 +56,7 @@ packages_required = [
 
 setup(
     name="registryquery",
-    version="0.7.0",
+    version="0.7.1",
     description="BBC implementation of an AMWA NMOS Query API",
     url='https://github.com/bbc/nmos-query',
     author='Peter Brightwell',
