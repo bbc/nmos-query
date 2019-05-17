@@ -221,7 +221,7 @@ class QueryCommon(object):
 
     def do_sup(self, path, pre_obj, post_obj):
         self.logger.writeDebug('do_sup {} {}'.format(self.api_version, path))
-        if cmp(post_obj, pre_obj) == 0:
+        if post_obj == pre_obj:
             return
         sockets = self.query_sockets.find_socks(path=path, obj=post_obj, p_obj=pre_obj)
         event = GrainEvent()
