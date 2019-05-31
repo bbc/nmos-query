@@ -21,6 +21,14 @@ import time # noqa E402
 import gevent # noqa E402
 import os # noqa E402
 
+# Handle if systemd is installed instead of newer cysystemd
+try:
+    from cysystemd import daemon
+    SYSTEMD_READY = daemon.Notification.READY
+except ImportError:
+    from systemd import daemon
+    SYSTEMD_READY = "READY=1"
+
 from nmoscommon.httpserver import HttpServer # noqa E402
 from nmoscommon.logger import Logger # noqa E402
 from nmoscommon.mdns import MDNSEngine # noqa E402
@@ -90,6 +98,7 @@ class QueryService:
     def run(self):
         self.running = True
         self.start()
+        daemon.notify(SYSTEMD_READY)
         while self.running:
             time.sleep(1)
         self._cleanup()
