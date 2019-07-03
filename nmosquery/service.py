@@ -34,6 +34,7 @@ from nmoscommon.logger import Logger # noqa E402
 from nmoscommon.mdns import MDNSEngine # noqa E402
 from nmoscommon.utils import getLocalIP # noqa E402
 from .api import QueryServiceAPI, QUERY_APIVERSIONS # noqa E402
+from .config import config
 
 reg = {'host': 'localhost', 'port': 4001}
 HOST = getLocalIP()
@@ -50,12 +51,7 @@ class QueryService:
         self.running = False
         self.logger = Logger("regquery")
         self.logger.writeDebug('Running QueryService')
-        # HTTPS under test only at present
-        # enabled = Use HTTPS only in all URLs and mDNS adverts
-        # disabled = Use HTTP only in all URLs and mDNS adverts
-        # mixed = Use HTTP in all URLs, but additionally advertise an HTTPS endpoint for discovery of this API only
-        self.config = {"priority": 100, "https_mode": "disabled", "enable_mdns": True}
-        self._load_config()
+        self.config = config
         self.mdns = MDNSEngine()
         self.httpServer = HttpServer(QueryServiceAPI, WS_PORT, '0.0.0.0', api_args=[self.logger, self.config])
 
@@ -112,16 +108,6 @@ class QueryService:
     def stop(self):
         self.running = False
         self._cleanup()
-
-    def _load_config(self):
-        try:
-            config_file = "/etc/ips-regquery/config.json"
-            if os.path.isfile(config_file):
-                f = open(config_file, 'r')
-                extra_config = json.loads(f.read())
-                self.config.update(extra_config)
-        except Exception as e:
-            self.logger.writeDebug("Exception loading config: {}".format(e))
 
 
 if __name__ == '__main__':

@@ -1,5 +1,8 @@
 # NMOS Query API Implementation Changelog
 
+## 0.7.6
+- Import config from separate file, add OAUTH_MODE config parameter
+
 ## 0.7.5
 - Add cleanup function when stopping service
 
