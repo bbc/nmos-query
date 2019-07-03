@@ -23,10 +23,10 @@ import os # noqa E402
 
 # Handle if systemd is installed instead of newer cysystemd
 try:
-    from cysystemd import daemon
+    from cysystemd import daemon # noqa E402
     SYSTEMD_READY = daemon.Notification.READY
 except ImportError:
-    from systemd import daemon
+    from systemd import daemon # noqa E402
     SYSTEMD_READY = "READY=1"
 
 from nmoscommon.httpserver import HttpServer # noqa E402
@@ -34,7 +34,7 @@ from nmoscommon.logger import Logger # noqa E402
 from nmoscommon.mdns import MDNSEngine # noqa E402
 from nmoscommon.utils import getLocalIP # noqa E402
 from .api import QueryServiceAPI, QUERY_APIVERSIONS # noqa E402
-from .config import config
+from .config import config  # noqa E402
 
 reg = {'host': 'localhost', 'port': 4001}
 HOST = getLocalIP()
