@@ -101,10 +101,8 @@ class QueryService:
         daemon.notify(SYSTEMD_READY)
         while self.running:
             time.sleep(1)
-        self._cleanup()
 
     def _cleanup(self):
-        self.mdns.stop()
         self.mdns.close()
         self.httpServer.stop()
 
@@ -113,6 +111,7 @@ class QueryService:
 
     def stop(self):
         self.running = False
+        self._cleanup()
 
     def _load_config(self):
         try:
