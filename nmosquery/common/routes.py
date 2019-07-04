@@ -21,6 +21,9 @@ from socket import error as socket_error
 from nmosquery import VALID_TYPES
 from nmosquery.common.query import QueryCommon
 from nmoscommon.auth.nmos_auth import RequiresAuth
+from ..config import config
+
+OAUTH_MODE = config.get('oauth_mode', False)
 
 
 class RoutesCommon(object):
@@ -70,7 +73,7 @@ class RoutesCommon(object):
         return (200, obj)
 
     @route('/subscriptions', methods=['POST'])
-    @RequiresAuth()
+    @RequiresAuth(condition=OAUTH_MODE)
     def __subscriptions_post(self):
         try:
             data = json.loads(request.get_data(as_text=True))
@@ -90,7 +93,7 @@ class RoutesCommon(object):
         return (200, obj)
 
     @route('/subscriptions/<socket_id>', methods=['GET', 'DELETE'])
-    @RequiresAuth()
+    @RequiresAuth(condition=OAUTH_MODE)
     def __subscriptions_id(self, socket_id):
         self.logger.writeDebug('subscriptions')
         obj = self.query.get_ws_subscribers(socket_id)
@@ -115,7 +118,7 @@ class RoutesCommon(object):
 
     def websocket_opened(self, handler_func):
         @wraps(handler_func)
-        @RequiresAuth()
+        @RequiresAuth(condition=OAUTH_MODE)
         def inner_func(ws):
             ws_args_str = ws.environ['QUERY_STRING']
             (_, query_args) = self.query.query_sockets.parse_env_str(ws_args_str)
