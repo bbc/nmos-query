@@ -1,5 +1,8 @@
 # NMOS Query API Implementation Changelog
 
+## 0.7.7
+- Add `api_auth` text record to multicast announcements
+
 ## 0.7.6
 - Import config from separate file, add OAUTH_MODE config parameter
 
