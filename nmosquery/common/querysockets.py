@@ -87,7 +87,8 @@ class QuerySocketsCommon(object):
             params=opts.get('params', {}),
             secure=opts.get('secure', False),
             logger=self.logger,
-            api_version=opts.get('api_version', 'v1.0'))
+            api_version=opts.get('api_version', 'v1.0')
+        )
         self.sockets.append(sock)
         self.logger.writeDebug('Number of active sockets: {}'.format(len(self.sockets)))
         return sock
