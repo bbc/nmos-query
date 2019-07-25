@@ -22,7 +22,6 @@ class QuerySocket(QuerySocketCommon):
     def __init__(self, resource_path, ws_port, rate=100, persist=False,
                  params=None, secure=False, logger=None, authorization=False):
         super(QuerySocket, self).__init__(resource_path, ws_port, rate, persist, params, secure, logger, "v1.3")
-        self.secure = secure  # Is this required if its defined in common aswell?
         self.authorization = authorization
 
 
