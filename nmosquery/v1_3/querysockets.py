@@ -13,12 +13,16 @@
 # limitations under the License.
 
 from nmosquery.common.querysockets import QuerySocketCommon, QuerySocketsCommon, QueryFilterCommon
+from ..config import config
+
+OAUTH_MODE = config.get('OAUTH_MODE', False)
 
 
 class QuerySocket(QuerySocketCommon):
-    def __init__(self, resource_path, ws_port, rate=100, persist=False, params=None, secure=False, logger=None):
+    def __init__(self, resource_path, ws_port, rate=100, persist=False,
+                 params=None, secure=False, logger=None, authorization=False):
         super(QuerySocket, self).__init__(resource_path, ws_port, rate, persist, params, secure, logger, "v1.3")
-        self.secure = secure
+        self.authorization = authorization
 
 
 class QuerySockets(QuerySocketsCommon):
@@ -27,13 +31,16 @@ class QuerySockets(QuerySocketsCommon):
 
     # add a socket
     def add_sock(self, opts):
-        sock = QuerySocket(rate=opts.get('max_update_rate_ms', 100),
-                           ws_port=self.ws_port,
-                           persist=opts.get('persist', False),
-                           resource_path=opts.get('resource_path', ''),
-                           params=opts.get('params', {}),
-                           secure=opts.get('secure', False),
-                           logger=self.logger)
+        sock = QuerySocket(
+            rate=opts.get('max_update_rate_ms', 100),
+            ws_port=self.ws_port,
+            persist=opts.get('persist', False),
+            resource_path=opts.get('resource_path', ''),
+            params=opts.get('params', {}),
+            secure=opts.get('secure', False),
+            logger=self.logger,
+            authorization=OAUTH_MODE
+        )
         self.sockets.append(sock)
         self.logger.writeDebug('Number of active sockets: {}'.format(len(self.sockets)))
         return sock
@@ -46,6 +53,7 @@ class QuerySockets(QuerySocketsCommon):
     def _summarise(self, obj):
         retval = super(QuerySockets, self)._summarise(obj)
         retval['secure'] = obj.secure
+        retval['authorization'] = obj.authorization
         return retval
 
 

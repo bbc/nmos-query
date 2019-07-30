@@ -80,16 +80,23 @@ class QueryService:
         if not str(priority).isdigit():
             priority = 0
 
+        oauth_mode = self.config.get('oauth_mode', False)
+
         if self.config["https_mode"] != "enabled" and self.config["enable_mdns"]:
             self.mdns.register(DNS_SD_NAME + "_http", DNS_SD_TYPE, DNS_SD_HTTP_PORT,
-                               {"pri": priority,
-                                "api_ver": ",".join(QUERY_APIVERSIONS),
-                                "api_proto": "http"})
+                               self._mdns_txt(priority, QUERY_APIVERSIONS, "http", oauth_mode))
+
         if self.config["https_mode"] != "disabled" and self.config["enable_mdns"]:
             self.mdns.register(DNS_SD_NAME + "_https", DNS_SD_TYPE, DNS_SD_HTTPS_PORT,
-                               {"pri": priority,
-                                "api_ver": ",".join(QUERY_APIVERSIONS),
-                                "api_proto": "https"})
+                               self._mdns_txt(priority, QUERY_APIVERSIONS, "https", oauth_mode))
+
+    def _mdns_txt(self, priority, versions, protocol, oauth_mode):
+        return {
+            "pri": priority,
+            "api_ver": ",".join(versions),
+            "api_proto": protocol,
+            "api_auth": str(oauth_mode).lower()
+        }
 
     def run(self):
         self.running = True

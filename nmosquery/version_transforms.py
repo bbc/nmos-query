@@ -43,9 +43,26 @@ def convert(obj, rtype, target_ver, downgrade_ver=None):
     return None
 
 
-def _remove_if_present(obj, key):
-    if key in obj:
-        del obj[key]
+def _remove_if_present(obj, delete_key):
+    if isinstance(obj, list):
+        for element in obj:
+            _remove_if_present(element, delete_key)
+    if isinstance(obj, dict):
+        for key, val in obj.copy().items():
+            if isinstance(val, dict):
+                val = _remove_if_present(val, delete_key)
+            if isinstance(val, list):
+                for element in val:
+                    val = _remove_if_present(element, delete_key)
+            if key == delete_key:
+                del obj[delete_key]
+    return obj
+
+
+def _remove_keys_from_resource(obj, rtype, downgrade_mapping):
+    if rtype in downgrade_mapping:
+        for key in downgrade_mapping[rtype]:
+            _remove_if_present(obj, key)
     return obj
 
 
@@ -65,46 +82,61 @@ def _api_ver_compare(first, second):
 
 
 def _v1_1_to_v1_0(obj, rtype):
-    if rtype == "nodes":
-        for key in ["api", "description", "tags", "clocks"]:
-            _remove_if_present(obj, key)
 
-    elif rtype == "flows":
-        for key in ["device_id", "media_type", "colorspace",
-                    "components", "frame_height", "frame_width",
-                    "interlace_mode", "bit_depth", "sample_rate",
-                    "DID_SDID", "grain_rate", "transfer_characteristic"]:
-            _remove_if_present(obj, key)
+    downgrade_mapping = {
+        'nodes': [
+            "api", "description", "tags", "clocks"
+        ],
+        "flows": [
+            "device_id", "media_type", "colorspace", "components", "frame_height", "frame_width",
+            "interlace_mode", "bit_depth", "sample_rate", "DID_SDID", "grain_rate", "transfer_characteristic"
+        ],
+        "devices": [
+            "controls", "description", "tags"
+        ],
+        "receivers": [
+            "caps"
+        ],
+        "sources": [
+            "clock_name", "channels", "grain_rate"
+        ]
+    }
 
-    elif rtype == "devices":
-        for key in ["controls", "description", "tags"]:
-            _remove_if_present(obj, key)
-
-    elif rtype == "receivers":
-        obj['caps'] = {}
-
-    elif rtype == "sources":
-        for key in ["clock_name", "channels", "grain_rate"]:
-            _remove_if_present(obj, key)
-
-    return obj
+    return _remove_keys_from_resource(obj, rtype, downgrade_mapping)
 
 
 def _v1_2_to_v1_1(obj, rtype):
-    if rtype == "nodes":
-        for key in ["interfaces"]:
-            _remove_if_present(obj, key)
 
-    elif rtype == "receivers":
-        for key in ["interface_bindings"]:
-            _remove_if_present(obj, key)
+    downgrade_mapping = {
+        'nodes': [
+            "interfaces"
+        ],
+        "receivers": [
+            "interface_bindings"
+        ],
+        "senders": [
+            "interface_bindings", "caps", "subscription"
+        ]
+    }
 
-    elif rtype == "senders":
-        for key in ["interface_bindings", "caps", "subscription"]:
-            _remove_if_present(obj, key)
-
-    return obj
+    return _remove_keys_from_resource(obj, rtype, downgrade_mapping)
 
 
 def _v1_3_to_v1_2(obj, rtype):
-    return obj
+
+    downgrade_mapping = {
+        'nodes': [
+            "attached_network_device", "authorization"
+        ],
+        "devices": [
+            "authorization"
+        ],
+        "sources": [
+            "event_type"
+        ],
+        "flows": [
+            "event_type"
+        ]
+    }
+
+    return _remove_keys_from_resource(obj, rtype, downgrade_mapping)
