@@ -15,6 +15,8 @@
 from nmoscommon.webapi import WebAPI, route
 from nmoscommon.nmoscommonconfig import config as _config
 
+from .couchbase_backend import CouchbaseInterface
+
 from .v1_0 import routes as v1_0
 from .v1_1 import routes as v1_1
 from .v1_2 import routes as v1_2
@@ -31,19 +33,26 @@ class QueryServiceAPI(WebAPI):
 
     def __init__(self, logger, config):
         super(QueryServiceAPI, self).__init__()
+        if config['registry']['type'] == 'couchbase':
+            registry = CouchbaseInterface(
+                cluster_address=config['registry']['hosts'],
+                username=config['registry']['username'],
+                password=config['registry']['password'],
+                bucket=config['registry']['bucket']
+            )
         self.logger = logger
         self.config = config
 
-        self.api_v1_0 = v1_0.Routes(logger, config)
+        self.api_v1_0 = v1_0.Routes(logger, config, registry)
         self.add_routes(self.api_v1_0, basepath="/{}/{}/v1.0".format(QUERY_APINAMESPACE, QUERY_APINAME))
 
-        self.api_v1_1 = v1_1.Routes(logger, config)
+        self.api_v1_1 = v1_1.Routes(logger, config, registry)
         self.add_routes(self.api_v1_1, basepath="/{}/{}/v1.1".format(QUERY_APINAMESPACE, QUERY_APINAME))
 
-        self.api_v1_2 = v1_2.Routes(logger, config)
+        self.api_v1_2 = v1_2.Routes(logger, config, registry)
         self.add_routes(self.api_v1_2, basepath="/{}/{}/v1.2".format(QUERY_APINAMESPACE, QUERY_APINAME))
 
-        self.api_v1_3 = v1_3.Routes(logger, config)
+        self.api_v1_3 = v1_3.Routes(logger, config, registry)
         self.add_routes(self.api_v1_3, basepath="/{}/{}/v1.3".format(QUERY_APINAMESPACE, QUERY_APINAME))
 
     @route('/')

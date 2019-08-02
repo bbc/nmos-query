@@ -51,7 +51,8 @@ packages_required = [
     "cysystemd",
     "ws4py>=0.3.4",
     "requests>=0.9.3",
-    "six",
+    "six>=1.11.10",
+    "couchbase",
     "werkzeug>=0.14.1,<1.0.0"  # Echo pin from nmos-common to avoid Flask overriding it
 ]
 

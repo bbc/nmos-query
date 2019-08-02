@@ -28,7 +28,7 @@ OAUTH_MODE = config.get('oauth_mode', False)
 
 class RoutesCommon(object):
 
-    def __init__(self, logger, config, api_version="v1.0", query=None):
+    def __init__(self, logger, config, registry, api_version="v1.0", query=None):
         self.logger = logger
         self.config = config
         if not query:
@@ -37,6 +37,7 @@ class RoutesCommon(object):
             self.query = query
         self.on_websocket_connect = self.websocket_opened
         self.api_version = api_version
+        self.registry = registry
 
     @route('/')
     def __versionindex(self):
@@ -55,7 +56,10 @@ class RoutesCommon(object):
                 abort(501)
             elif key == "query.rql":
                 abort(501)
-        obj = self.query.get_data_for_path('/{}'.format(ips_type), request.args)
+        if self.registry and self.registry.type == 'couchbase':
+            obj = self.registry.get_by_resource_type
+        else:
+            obj = self.query.get_data_for_path('/{}'.format(ips_type), request.args)
         self.logger.writeDebug('obj {}'.format(obj))
         if not obj:
             obj = []

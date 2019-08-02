@@ -1,4 +1,4 @@
-# Copyright 2017 British Broadcasting Corporation
+# Copyright 2019 British Broadcasting Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,12 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from nmosquery.common.routes import RoutesCommon
+import json
+import os
 
-from nmosquery.v1_0.query import Query
+
+def load_fixture(filename, process=id):
+    my_dir = os.path.dirname(os.path.realpath(__file__))
+    print("LOAD" + os.path.join(my_dir, filename))
+    with open(os.path.join(my_dir, filename), "r") as fh:
+        return process(fh)
 
 
-class Routes(RoutesCommon):
-    def __init__(self, logger, config, registry):
-        query = Query(logger=logger)
-        super(Routes, self).__init__(logger, config, "v1.0", query)
+def json_fixture(filename):
+    """
+    Load a test fixture from the current directory as a JSON object.
+    """
+    return load_fixture(filename, process=json.load)

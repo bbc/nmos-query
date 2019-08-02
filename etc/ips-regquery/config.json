@@ -1,5 +1,15 @@
 {
     "priority": 100,
     "https_mode": "disabled",
-    "enable_mdns": true
+    "enable_mdns": true,
+    "service_port": 8235,
+    "registry": {
+        "type": "couchbase",
+        "hosts": [""],
+        "port": 8091,
+        "username": "",
+        "password": "",
+        "bucket": ""
+    },
+    "resource_expiry": 12
 }
