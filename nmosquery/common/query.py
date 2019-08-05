@@ -17,22 +17,21 @@ monkey.patch_all()
 
 import json # noqa E402
 import os # noqa E402
+import requests # noqa E402
 import socket as socketlib # noqa E402 # To avoid namespace clashes
 import uuid # noqa E402
 import copy # noqa E402
-
 from six import string_types # noqa E402
 
-import nmosquery.util as util # noqa E402
-import requests # noqa E402
-
 from nmoscommon.logger import Logger # noqa E402
+from nmoscommon.utils import downgrade_api_version # noqa E402
+
+from ..util import translate_resourcetypes, get_resourcetypes # noqa E402
 from .. import VALID_TYPES # noqa E402
 from ..changewatcher import ChangeWatcher # noqa E402
 from ..etcd_util import etcd_unpack # noqa E402
 from ..grainevent import GrainEvent # noqa E402
 from .querysockets import QuerySocketsCommon, QueryFilterCommon # noqa E402
-from ..version_transforms import convert # noqa E402
 
 reg = {'host': 'localhost', 'port': 4001}
 WS_PORT = 8870
@@ -65,7 +64,7 @@ class QueryCommon(object):
     def parse_services_dict(self, obj, url, args, verbose):
         res_type_pattern = None
         if url is not None and url != '/' and url != '':
-            res_type_pattern = util.translate_resourcetypes(url)
+            res_type_pattern = translate_resourcetypes(url)
 
         if 'node' in obj:
             unpacked = etcd_unpack(obj)
@@ -86,11 +85,11 @@ class QueryCommon(object):
                         downgrade_ver = args["query.downgrade"]
 
                     # Downgrade / convert any mis-versioned objects as required
-                    resource_type = util.get_resourcetypes(k).replace("/", "")
+                    resource_type = get_resourcetypes(k).replace("/", "")
                     json_repr = None
                     if resource_type != "":
                         json_repr = json.loads(v)
-                        json_repr = convert(
+                        json_repr = downgrade_api_version(
                             copy.deepcopy(json_repr),
                             resource_type,
                             self.api_version, downgrade_ver
@@ -143,7 +142,7 @@ class QueryCommon(object):
         if response['action'] == 'set' or response['action'] == 'delete':
             unpacked = etcd_unpack(response)
             for k, v in unpacked.items():
-                restype = util.get_resourcetypes(k)
+                restype = get_resourcetypes(k)
 
                 if restype in VALID_TYPES:
                     post_obj = {}
@@ -192,7 +191,7 @@ class QueryCommon(object):
 
     def do_sync(self, ws, socket):
         # HTTP GET on etcd registry at top level
-        path = util.translate_resourcetypes(socket.resource_path)
+        path = translate_resourcetypes(socket.resource_path)
         url = 'http://{}:{}/v2/keys/resource/{}?recursive=true'.format(reg['host'], reg['port'], path)
 
         event = GrainEvent()
@@ -226,7 +225,7 @@ class QueryCommon(object):
         sockets = self.query_sockets.find_socks(path=path, obj=post_obj, p_obj=pre_obj)
         event = GrainEvent()
         event.source_id = self.gen_source_id()
-        event.topic = util.get_resourcetypes(path)
+        event.topic = get_resourcetypes(path)
         for socket in sockets:
             self.logger.writeDebug('next ws ' + socket.ws_href)
 
@@ -234,13 +233,13 @@ class QueryCommon(object):
             if socket.params and "query.downgrade" in socket.params:
                 downgrade_ver = socket.params["query.downgrade"]
 
-            socket_post_obj = convert(
+            socket_post_obj = downgrade_api_version(
                 copy.deepcopy(post_obj),
                 event.topic.replace("/", ""),
                 self.api_version, downgrade_ver
             )
 
-            socket_pre_obj = convert(
+            socket_pre_obj = downgrade_api_version(
                 copy.deepcopy(pre_obj),
                 event.topic.replace("/", ""),
                 self.api_version, downgrade_ver
@@ -269,7 +268,7 @@ class QueryCommon(object):
         sockets = self.query_sockets.find_socks(path=path, obj=post_obj, p_obj=pre_obj)
         event = GrainEvent()
         event.source_id = self.gen_source_id()
-        event.topic = util.get_resourcetypes(path)
+        event.topic = get_resourcetypes(path)
         for socket in sockets:
             self.logger.writeDebug('next ws ' + socket.ws_href)
 
@@ -277,7 +276,7 @@ class QueryCommon(object):
             if socket.params and "query.downgrade" in socket.params:
                 downgrade_ver = socket.params["query.downgrade"]
 
-            socket_pre_obj = convert(
+            socket_pre_obj = downgrade_api_version(
                 copy.deepcopy(pre_obj),
                 event.topic.replace("/", ""),
                 self.api_version, downgrade_ver
