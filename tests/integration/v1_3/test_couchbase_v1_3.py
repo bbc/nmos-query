@@ -35,7 +35,7 @@ TEST_PASSWORD = 'password'
 
 AGGREGATOR_PORT = 8870
 
-API_VERSION = 'v1.2'
+API_VERSION = 'v1.3'
 
 DUMMY_RESOURCES = util.json_fixture("dummy_data/example.json")
 
@@ -115,7 +115,7 @@ def _put_doc(bucket, key, value, xattrs, fill_timestamp_xattrs=True, ttl=12):
 def _load_bucket(bucket, docs):
     for resource_type, subset in docs.items():
         for resource in subset:
-            _put_doc(bucket, resource['id'], resource, {'resource_type': resource_type}, ttl=0)
+            _put_doc(bucket, resource['id'], resource, {'resource_type': resource_type[0:-1]}, ttl=0)
 
 
 def _get_xattrs(bucket, key, xattrs):
@@ -149,6 +149,7 @@ class TestCouchbase(ExtendedTestCase):
             "username": TEST_USERNAME,
             "password": TEST_PASSWORD,
             "bucket": BUCKET_NAME}
+        self.query.config['priority'] = 169
         self.query.start()
 
         cluster = Cluster('couchbase://{}'.format(host))
@@ -176,11 +177,10 @@ class TestCouchbase(ExtendedTestCase):
         ]
 
         query_response = requests.get(
-            'http://0.0.0.0:{}/x-mmos/query/{}/nodes/'.format(AGGREGATOR_PORT, API_VERSION)
+            'http://127.0.0.1:{}/x-nmos/query/{}/nodes/'.format(AGGREGATOR_PORT, API_VERSION),
         )
 
-        # self.assertListOfDictsEqual(query_response, expected, 'id', ['href', 'id', 'label', 'services'])
-        self.assertEqual(query_response, expected)
+        self.assertListOfDictsEqual(query_response.json(),  expected, 'id')
 
     @classmethod
     def tearDownClass(self):

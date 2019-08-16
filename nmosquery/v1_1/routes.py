@@ -20,4 +20,4 @@ from nmosquery.v1_1.query import Query
 class Routes(RoutesCommon):
     def __init__(self, logger, config, registry):
         query = Query(logger=logger)
-        super(Routes, self).__init__(logger, config, "v1.1", query)
+        super(Routes, self).__init__(logger, config, registry, "v1.1", query)

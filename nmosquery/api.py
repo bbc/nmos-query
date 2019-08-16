@@ -40,6 +40,8 @@ class QueryServiceAPI(WebAPI):
                 password=config['registry']['password'],
                 bucket=config['registry']['bucket']
             )
+        else:
+            registry = None
         self.logger = logger
         self.config = config
 

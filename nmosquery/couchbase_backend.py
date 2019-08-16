@@ -33,12 +33,13 @@ class CouchbaseInterface(object):
 
     def key_query(self, output, key, value):
         query = n1ql.N1QLQuery(
-            'SELECT {} from `{}` WHERE {}={}'.format(output, self.bucket, key, value)
+            'SELECT {} from `{}` WHERE {}="{}"'.format(output, self.bucket, key, value)
         )
-        return 
 
-    def get_by_resource_type(self, resource_type, verbose=False):
-        if verbose:
-            return self.key_query('*', 'resource_type', resource_type)
-        else:
-            return self.key_query('id', 'resource_type', resource_type)
+        return [result[self.bucket] for result in self.registry.n1ql_query(query)]
+
+    # args included for potential use of verbose mode, although this does not appear to adhere to the specification
+    def get_by_resource_type(self, resource_type, args):
+        rtype = resource_type[0:-1]
+
+        return self.key_query('*', 'meta().xattrs.resource_type', rtype)

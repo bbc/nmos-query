@@ -53,7 +53,8 @@ class QueryService:
         self.logger.writeDebug('Running QueryService')
         self.config = config
         self.mdns = MDNSEngine()
-        self.httpServer = HttpServer(QueryServiceAPI, WS_PORT, '0.0.0.0', api_args=[self.logger, self.config])
+        self.service_port = WS_PORT
+        self.httpServer = HttpServer(QueryServiceAPI, self.service_port, '0.0.0.0', api_args=[self.logger, self.config])
 
     def start(self):
         if self.running:
@@ -63,7 +64,7 @@ class QueryService:
         self.running = True
         self.mdns.start()
 
-        self.logger.writeDebug('Running web socket server on %i' % WS_PORT)
+        self.logger.writeDebug('Running web socket server on %i' % self.service_port)
 
         self.httpServer.start()
 

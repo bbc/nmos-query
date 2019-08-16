@@ -31,16 +31,21 @@ class RoutesCommon(object):
     def __init__(self, logger, config, registry, api_version="v1.0", query=None):
         self.logger = logger
         self.config = config
-        if not query:
+        self.registry = registry
+        if self.registry and self.registry.type and self.registry.type == 'couchbase':
+            self.logger.writeDebug('couchbase registry')
+            self.query = None
+        elif not query:
             self.query = QueryCommon(logger=self.logger)
         else:
             self.query = query
         self.on_websocket_connect = self.websocket_opened
         self.api_version = api_version
-        self.registry = registry
+        self.logger.writeDebug('RoutesCommon initialised')
 
     @route('/')
     def __versionindex(self):
+        self.logger.writeDebug('root path')
         obj = ["subscriptions/"]
         for ips_type in VALID_TYPES:
             obj.append(ips_type + "/")
@@ -57,7 +62,7 @@ class RoutesCommon(object):
             elif key == "query.rql":
                 abort(501)
         if self.registry and self.registry.type == 'couchbase':
-            obj = self.registry.get_by_resource_type
+            obj = self.registry.get_by_resource_type(ips_type, request.args)
         else:
             obj = self.query.get_data_for_path('/{}'.format(ips_type), request.args)
         self.logger.writeDebug('obj {}'.format(obj))

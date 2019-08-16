@@ -12,7 +12,7 @@
             "label": "hostname.example.com",
             "services": [
                 {
-                    "type": "urn:x-nmos-opensourceprivatenamespace:service:pipelinemanager/<<VERSION>>"
+                    "type": "urn:x-nmos-opensourceprivatenamespace:service:pipelinemanager/v1.0"
                 }
             ]
         },
@@ -22,9 +22,14 @@
             "label": "test_node",
             "services": [
                 {
-                    "type": "urn:x-nmos-opensourceprivatenamespace:service:mdnsbridge/<<VERSION>>"
+                    "type": "urn:x-nmos-opensourceprivatenamespace:service:mdnsbridge/v1.0"
                 }
             ]
         }
-    ]
+    ],
+    "sources": [],
+    "flows": [],
+    "devices": [],
+    "senders": [],
+    "receivers": []
 }
