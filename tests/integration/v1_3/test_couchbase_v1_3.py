@@ -39,6 +39,14 @@ API_VERSION = 'v1.3'
 
 DUMMY_RESOURCES = util.json_fixture("dummy_data/example.json")
 
+IPS_TYPE_SINGULAR = {
+    "flows": "flow",
+    "sources": 'source',
+    "nodes": 'node',
+    "devices": 'device',
+    "senders": 'sender',
+    "receivers": 'receiver'
+}
 
 def _initialise_cluster(host, port, bucket, username, password):
     # Initialize node
@@ -115,7 +123,7 @@ def _put_doc(bucket, key, value, xattrs, fill_timestamp_xattrs=True, ttl=12):
 def _load_bucket(bucket, docs):
     for resource_type, subset in docs.items():
         for resource in subset:
-            _put_doc(bucket, resource['id'], resource, {'resource_type': resource_type[0:-1]}, ttl=0)
+            _put_doc(bucket, resource['id'], resource, {'resource_type': IPS_TYPE_SINGULAR[resource_type]}, ttl=0)
 
 
 def _get_xattrs(bucket, key, xattrs):
@@ -181,6 +189,30 @@ class TestCouchbase(ExtendedTestCase):
         )
 
         self.assertListOfDictsEqual(query_response.json(),  expected, 'id')
+
+    def test_get_node(self):
+        expected = {u"href": "http://192.168.100.100:12345/",
+                    u"id": u"007ff4e5-fe72-4c4b-b858-4c5f37dff946", u"label": u"hostname.example.com",
+                    "services": [{"type": "urn:x-nmos-opensourceprivatenamespace:service:pipelinemanager/v1.0"}]}
+        
+        query_response = requests.get(
+            'http://127.0.0.1:{}/x-nmos/query/{}/nodes/007ff4e5-fe72-4c4b-b858-4c5f37dff946'\
+                .format(AGGREGATOR_PORT, API_VERSION)
+        )
+
+        self.assertDictEqual(query_response.json(), expected)
+
+    def test_get_wrong_type(self):
+        expected = {u"href": "http://192.168.100.100:12345/",
+                    u"id": u"007ff4e5-fe72-4c4b-b858-4c5f37dff946", u"label": u"hostname.example.com",
+                    "services": [{"type": "urn:x-nmos-opensourceprivatenamespace:service:pipelinemanager/v1.0"}]}
+        
+        query_response = requests.get(
+            'http://127.0.0.1:{}/x-nmos/query/{}/flows/007ff4e5-fe72-4c4b-b858-4c5f37dff946'\
+                .format(AGGREGATOR_PORT, API_VERSION)
+        )
+
+        self.assertEqual(query_response.status_code, 409)
 
     @classmethod
     def tearDownClass(self):

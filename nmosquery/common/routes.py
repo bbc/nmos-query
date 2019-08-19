@@ -25,6 +25,14 @@ from ..config import config
 
 OAUTH_MODE = config.get('oauth_mode', False)
 
+IPS_TYPE_SINGULAR = {
+    "flows": "flow",
+    "sources": 'source',
+    "nodes": 'node',
+    "devices": 'device',
+    "senders": 'sender',
+    "receivers": 'receiver'
+}
 
 class RoutesCommon(object):
 
@@ -62,7 +70,7 @@ class RoutesCommon(object):
             elif key == "query.rql":
                 abort(501)
         if self.registry and self.registry.type == 'couchbase':
-            obj = self.registry.get_by_resource_type(ips_type, request.args)
+            obj = self.registry.get_by_resource_type(IPS_TYPE_SINGULAR[ips_type], request.args)
         else:
             obj = self.query.get_data_for_path('/{}'.format(ips_type), request.args)
         self.logger.writeDebug('obj {}'.format(obj))
@@ -74,7 +82,12 @@ class RoutesCommon(object):
     def __el_id(self, ips_type, el_id):
         if ips_type not in VALID_TYPES:
             abort(404)
-        obj = self.query.get_data_for_path('/{}/{}'.format(ips_type, el_id), request.args)
+        if self.registry and self.registry.type == 'couchbase':
+            obj = self.registry.get(el_id, IPS_TYPE_SINGULAR[ips_type])
+            if type(obj) == tuple:
+                return(obj[0], obj[1])
+        else:
+            obj = self.query.get_data_for_path('/{}/{}'.format(ips_type, el_id), request.args)
         if not obj:
             return(404, '')
         if isinstance(obj, list) and len(obj) >= 1:

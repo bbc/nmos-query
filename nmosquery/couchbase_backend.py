@@ -28,8 +28,21 @@ class CouchbaseInterface(object):
         self.registry = self.cluster.open_bucket(bucket)
         self.bucket = bucket
 
+    def _get_xattrs(self, key, xattrs):
+        results = {}
+        for xkey in xattrs:
+            try:
+                results[xkey] = self.registry.lookup_in(key, subdoc.get(xkey, xattr=True))['{}'.format(xkey)]
+            except couchbase.exceptions.SubdocPathNotFoundError:
+                results[xkey] = None
+        return results
+
     def get(self, rkey, resource_type=None):
-        return self.registry.get(rkey).value
+        resource_doc = self.registry.get(rkey).value
+
+        if resource_type and self._get_xattrs(rkey, ['resource_type'])['resource_type'] !=  resource_type:
+            return (409, 'Resource for key {} does not match type {}'.format(rkey, resource_type))
+        return resource_doc
 
     def key_query(self, output, key, value):
         query = n1ql.N1QLQuery(
