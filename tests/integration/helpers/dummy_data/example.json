@@ -27,9 +27,285 @@
             ]
         }
     ],
-    "sources": [],
-    "flows": [],
-    "devices": [],
-    "senders": [],
-    "receivers": []
+    "sources": [
+        {
+            "label": "String Name",
+            "format": "urn:x-nmos:format:mux",
+            "parents": [
+                "15f63ce2-7dd9-286c-95de-69fd8027aa43",
+                "e472a60d-b16d-3098-a9d0-e13147657213",
+                "728d1482-17ea-1712-aad9-a304b63349d3"
+            ],
+            "id": "6a72c885-edc7-19a4-a44b-b5fdd7f35a03",
+            "description": "A longer string describing things and stuff",
+            "caps": {},
+            "version": "1034:859",
+            "device_id": "f925c5b6-b389-464b-b62b-2bc8521dcf19",
+            "tags": {},
+            "clock_name": "clk9"
+        },
+        {
+            "label": "String Name",
+            "format": "urn:x-nmos:format:video",
+            "parents": [
+                "14f61780-6c74-241d-aa1a-38d907e3a1c8"
+            ],
+            "id": "32590d00-8cfb-4a99-8cf3-c6043443980e",
+            "description": "A longer string describing things and stuff",
+            "caps": {},
+            "version": "743562764613585379:914197682268149573286175212362948636312179317367619930469876445532973748468696219636",
+            "device_id": "0be5a037-ad73-1083-9501-c21156d74905",
+            "tags": {},
+            "clock_name": "clk7"
+        },
+        {
+            "label": "String Name",
+            "caps": {},
+            "format": "urn:x-nmos:format:audio",
+            "parents": [
+                "a29e3f8a-cd71-1cad-87eb-7d77aebec457"
+            ],
+            "id": "a1164b1b-68e4-4bb1-9ea3-85f75be463a7",
+            "description": "A longer string describing things and stuff",
+            "channels": [
+                {"label": "String Name"},
+                {"label": "String Name"}, 
+                {"label": "String Name"}
+            ],
+            "version": "57320:406",
+            "device_id": "a22303dd-7916-4755-861c-f40dcfc97990",
+            "tags": {},
+            "clock_name": "clk4"
+        }
+    ],
+    "flows": [
+        {
+            "format": "urn:x-nmos:format:video",
+            "description": "A longer string describing things and stuff",
+            "version": "839196:413",
+            "frame_width": 69,
+            "parents": [
+                "ff856862-deb7-2bb0-b62f-a5f95cd8a8e4"
+            ],
+            "frame_height": 38,
+            "grain_rate": {
+                "numerator": 37,
+                "demoninator": 59
+            },
+            "source_id": "6a72c885-edc7-19a4-a44b-b5fdd7f35a03",
+            "label": "String Name",
+            "id": "7b36d475-0b01-2e91-b31c-1f3642a9e356",
+            "device_id": "690deda2-57e6-2e4e-b536-4c28aa6f77b1",
+            "tags": {}
+        },
+        {
+            "format": "urn:x-nmos:format:video",
+            "description": "A longer string describing things and stuff",
+            "version": "74891:393",
+            "frame_width": 77,
+            "parents": ["6435f621-9a88-5aa1-aab6-899171272df5"],
+            "frame_height": 61,
+            "grain_rate": {
+                "numerator": 66,
+                "demoninator": 40
+            },
+            "source_id": "32590d00-8cfb-4a99-8cf3-c6043443980e",
+            "label": "String Name",
+            "id": "90d7efee-b432-1487-a0b7-7ddd7aa05ced",
+            "device_id": "b7d7f8a6-d8af-2f90-9957-65ae3bf8b4f2",
+            "tags": {}
+        },
+        {
+            "source_id": "a1164b1b-68e4-4bb1-9ea3-85f75be463a7",
+            "format": "urn:x-nmos:format:video",
+            "description": "A longer string describing things and stuff",
+            "version": "249207:653",
+            "id": "d06155bc-0891-4ad4-85f0-54f60ea58d87",
+            "parents": [
+                "610874e0-6b5b-1969-9fda-2ce365aa48c7",
+                "42efd7db-3fd4-4e65-b77f-815fe7a09b0e"
+            ],
+            "frame_height": 95,
+            "grain_rate": {
+                "numerator": 54,
+                "demoninator": 36
+            },
+            "tags": {},
+            "components": [
+                {
+                    "width": 36,
+                    "height": 6,
+                    "bit_depth": 39
+                },
+                {
+                    "width": 78,
+                    "height": 33,
+                    "bit_depth": 83
+                },
+                {
+                    "width": 90,
+                    "height": 20,
+                    "bit_depth": 13
+                },
+                {
+                    "width": 100,
+                    "height": 72,
+                    "bit_depth": 81
+                },
+                {
+                    "width": 41,
+                    "height": 59,
+                    "bit_depth": 34
+                }
+            ],
+            "label": "String Name",
+            "frame_width": 69,
+            "device_id": "0e083d09-5137-3e5d-8b94-c23278095385",
+            "media_type": "video/raw"
+        }
+    ],
+    "devices": [
+        {
+            "controls": [
+                {
+                    "type": "uri",
+                    "href": "http://127.0.0.1:1234/path"
+                },
+                {
+                    "type": "uri",
+                    "href": "http://127.0.0.1:5678/path"
+                },
+                {
+                    "type": "uri",
+                    "href": "http://127.0.0.1:9101/path"
+                }
+            ],
+            "tags": {},
+            "type": "urn:x-nmos:device:pipeline",
+            "label": "String Name",
+            "receivers": [
+                "f80bb0d7-b30d-4662-b022-3d56680eb4ca",
+                "52260b9e-7ff0-5116-ad8b-35848923fe44",
+                "f896dc48-da04-24b9-bde5-041545e9c629"
+            ],
+            "node_id": "efee1ab5-85f1-4ae3-b5d5-3ccc79ae76af",
+            "id": "6af4b05e-cd02-329b-ba66-4e0d65a7bfa0",
+            "description": "A longer string describing things and stuff",
+            "senders": ["ffaa9d73-9ed2-39a5-ab3d-0c446e290cd2"],
+            "version": "230140:298"
+        },
+        {
+            "controls": [
+                {
+                    "type": "uri",
+                    "href": "http://127.0.0.1:1234/path"
+                }
+            ],
+            "tags": {},
+            "type": "urn:x-nmos:device:pipeline",
+            "label": "String Name",
+            "receivers": [
+                "05d96b7d-ec60-106a-9151-07ccd606bcf4",
+                "afac9965-3868-2c7c-8fb8-828a1797044d",
+                "76b9d078-5fef-372d-9262-90d16d77e84f"
+            ],
+            "node_id": "007ff4e5-fe72-4c4b-b858-4c5f37dff946",
+            "id": "cab8c06b-4781-2828-92a6-37719864882d",
+            "description": "A longer string describing things and stuff",
+            "senders": [
+                "b5a55fce-05f1-17cf-b3b4-3f4877466046",
+                "dec65c39-cebe-31ce-8d18-e7f200b99d78",
+                "1e3ee95b-ca73-17b7-9f1f-2ccdcfd804ef",
+                "0daf322d-7442-3b4c-9e98-c9be4cd1c7e9",
+                "f25d111a-7c67-1755-bf69-34faa21c85d3"
+            ],
+            "version": "67550:102"
+        },
+        {
+            "controls": [
+                {
+                    "type": "uri",
+                    "href": "uri"
+                },
+                {
+                    "type": "uri",
+                    "href": "uri"
+                }
+            ],
+            "tags": {},
+            "type": "urn:x-nmos:device:generic",
+            "label": "String Name",
+            "receivers": [
+                "fd0b4ddd-1e16-514f-8088-6bd1a02e4ff4",
+                "3b0c06a0-3366-4b9b-aa2a-d81e77097e66",
+                "a44749b3-f41e-3677-ab32-ebaa22e2c100"
+            ],
+            "node_id": "444bc732-965f-2c29-ab2c-f4f6963afc0c",
+            "id": "fa62908b-a1cf-2f70-be00-1a33b625d72b",
+            "description": "A longer string describing things and stuff",
+            "senders": [
+                "99cc21f9-d925-4f40-a65d-55bdd72e113a",
+                "5a5de1db-5ec9-50ee-accf-fe8dbc53dbde"
+            ],
+            "version": "54471:210"
+        }
+    ],
+    "senders": [
+        {
+            "interface_bindings": [
+                "eth0",
+                "eth1"
+            ],
+            "flow_id": "0f04bedb-c857-2454-b286-b229c0f4cd93",
+            "manifest_href": "http://172.29.176.146/x-manufacturer/senders/b1c3264f-ea54-4424-b0b4-19e88c5abd1d/stream.sdp",
+            "label": "String Name",
+            "subscription": {
+                "receiver_id": "18008163-7f64-1f93-8e93-fc28c44a139e",
+                "active": true
+            },
+            "description": "A longer string describing things and stuff",
+            "id": "b1c3264f-ea54-4424-b0b4-19e88c5abd1d",
+            "version": "6014946:455",
+            "device_id": "ce6a85d3-00a9-5de9-beec-60931d3d4a5e",
+            "tags": {},
+            "transport": "urn:x-nmos:transport:rtp"
+        },
+        {
+            "interface_bindings": [
+                "eth0",
+                "eth1"
+            ],
+            "flow_id": "07fe6f86-60fe-4ccf-84f9-15ce74b6d56a",
+            "manifest_href": "http://172.29.176.146/x-manufacturer/senders/524fde67-6041-403b-b5f1-e0e482d08e56/stream.sdp",
+            "label": "String Name",
+            "subscription": {
+                "receiver_id": "cd89ec31-9c24-5a3e-8267-dd3b4a33d8c4",
+                "active": true
+            },
+            "description": "A longer string describing things and stuff",
+            "id": "524fde67-6041-403b-b5f1-e0e482d08e56",
+            "version": "74359:66",
+            "device_id": "44863627-f416-2eda-b01a-e7ec150a5680",
+            "tags": {},
+            "transport": "urn:x-nmos:transport:dash"
+        },
+        {
+            "interface_bindings": [
+                "eth0"
+            ],
+            "flow_id": "fc63c8a4-03ef-35fa-81b6-277a3ae48672",
+            "manifest_href": "uri",
+            "label": "String Name",
+            "subscription": {
+                "receiver_id": "a5dfdd52-90cd-3097-8bb0-9a9356f2c077",
+                "active": false
+            },
+            "description": "A longer string describing things and stuff",
+            "id": "cef1ab89-b873-4516-b78d-b6cf8f7184c2",
+            "version": "4112:94",
+            "device_id": "c06f1272-6001-48af-8fbe-58a0f3eb4888",
+            "tags": {},
+            "transport": "urn:x-nmos:transport:rtp.mcast"
+        }
+    ]
 }

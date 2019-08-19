@@ -48,6 +48,8 @@ IPS_TYPE_SINGULAR = {
     "receivers": 'receiver'
 }
 
+RESOURCE_TYPES = ['nodes', 'sources', 'flows', 'devices', 'senders'] # + receivers
+
 def _initialise_cluster(host, port, bucket, username, password):
     # Initialize node
     requests.post('http://{0}:{1}/nodes/self/controller/settings'.format(host, port),
@@ -201,6 +203,18 @@ class TestCouchbase(ExtendedTestCase):
         )
 
         self.assertDictEqual(query_response.json(), expected)
+
+    def test_get_all_types(self):
+        for rtype in RESOURCE_TYPES:
+            expected = DUMMY_RESOURCES[rtype]
+
+            query_response = requests.get(
+                'http://127.0.0.1:{}/x-nmos/query/{}/{}/'.format(
+                    AGGREGATOR_PORT, API_VERSION, rtype
+                )
+            )
+
+            self.assertListOfDictsEqual(query_response.json(), expected, 'id', message='Testing {} resource type'.format(IPS_TYPE_SINGULAR[rtype]))
 
     def test_get_wrong_type(self):
         expected = {u"href": "http://192.168.100.100:12345/",

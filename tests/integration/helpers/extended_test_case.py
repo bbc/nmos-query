@@ -23,6 +23,7 @@ class ExtendedTestCase(TestCase):
         actual_list,
         expected_list,
         item_key,
+        message=None
     ):
         """Given an two lists of dictionaries (where the dictionary's key is
         some *unique* value (item_key) for each item/dictionary in the list),
@@ -40,5 +41,8 @@ class ExtendedTestCase(TestCase):
 
         for item in actual_list:
             for value_key in value_keys:
-                self.assertEqual(item[value_key],
-                                 expected_list_as_dict[item[item_key]][value_key])
+                try:
+                    self.assertEqual(item[value_key],
+                                    expected_list_as_dict[item[item_key]][value_key], msg=message)
+                except Exception as e:
+                    self.fail('{} - {}'.format(message, e))
