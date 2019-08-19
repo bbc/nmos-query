@@ -30,6 +30,10 @@ from tests.integration.helpers.extended_test_case import ExtendedTestCase
 from nmosquery.service import QueryService
 
 BUCKET_NAME = 'nmos-test'
+BUCKET_CONFIG = {
+    'registry': 'nmos-test',
+    'meta': 'nmos-meta-config' 
+}
 TEST_USERNAME = 'nmos-test'
 TEST_PASSWORD = 'password'
 
@@ -83,7 +87,7 @@ def _initialise_cluster(host, port, bucket, username, password):
                       'port': port,
                   }
                   )
-    # Build bucket
+    # Build registry bucket
     requests.post('http://{0}:{1}/pools/default/buckets'.format(host, port),
                   auth=requests.auth.HTTPBasicAuth(TEST_USERNAME, TEST_PASSWORD),
                   data={
@@ -92,7 +96,19 @@ def _initialise_cluster(host, port, bucket, username, password):
                       'evictionPolicy': 'valueOnly',
                       'ramQuotaMB': 1024,
                       'bucketType': 'couchbase',
-                      'name': BUCKET_NAME,
+                      'name': BUCKET_CONFIG['registry'],
+                  }
+                  )
+    # Build meta bucket
+    requests.post('http://{0}:{1}/pools/default/buckets'.format(host, port),
+                  auth=requests.auth.HTTPBasicAuth(TEST_USERNAME, TEST_PASSWORD),
+                  data={
+                      'flushEnabled': 1,
+                      'replicaNumber': 0,
+                      'evictionPolicy': 'valueOnly',
+                      'ramQuotaMB': 128,
+                      'bucketType': 'couchbase',
+                      'name': BUCKET_CONFIG['meta'],
                   }
                   )
     # Set indexer mode
@@ -158,14 +174,15 @@ class TestCouchbase(ExtendedTestCase):
             "port": port,
             "username": TEST_USERNAME,
             "password": TEST_PASSWORD,
-            "bucket": BUCKET_NAME}
+            "buckets": BUCKET_CONFIG
+        }
         self.query.config['priority'] = 169
         self.query.start()
 
         cluster = Cluster('couchbase://{}'.format(host))
         auth = PasswordAuthenticator(TEST_USERNAME, TEST_PASSWORD)
         cluster.authenticate(auth)
-        self.test_bucket = cluster.open_bucket(BUCKET_NAME) # Probably not necessary to be self. Documents should be stored in advance and only reads should be via Query service
+        self.test_bucket = cluster.open_bucket(BUCKET_CONFIG['registry']) # Probably not necessary to be self. Documents should be stored in advance and only reads should be via Query service
         self.test_bucket_manager = self.test_bucket.bucket_manager()
 
         try:

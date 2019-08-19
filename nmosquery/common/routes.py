@@ -70,7 +70,7 @@ class RoutesCommon(object):
             elif key == "query.rql":
                 abort(501)
         if self.registry and self.registry.type == 'couchbase':
-            obj = self.registry.get_by_resource_type(IPS_TYPE_SINGULAR[ips_type], request.args)
+            obj = self.registry.get_by_resource_type(IPS_TYPE_SINGULAR[ips_type], self.registry.buckets['registry'], request.args)
         else:
             obj = self.query.get_data_for_path('/{}'.format(ips_type), request.args)
         self.logger.writeDebug('obj {}'.format(obj))
@@ -83,7 +83,7 @@ class RoutesCommon(object):
         if ips_type not in VALID_TYPES:
             abort(404)
         if self.registry and self.registry.type == 'couchbase':
-            obj = self.registry.get(el_id, IPS_TYPE_SINGULAR[ips_type])
+            obj = self.registry.get(el_id, self.registry.buckets['registry'], IPS_TYPE_SINGULAR[ips_type])
             if type(obj) == tuple:
                 return(obj[0], obj[1])
         else:
