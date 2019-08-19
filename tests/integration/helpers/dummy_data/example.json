@@ -307,5 +307,84 @@
             "tags": {},
             "transport": "urn:x-nmos:transport:rtp.mcast"
         }
+    ],
+    "receivers": [
+        {
+            "label": "String Name",
+             "version": "92560:397",
+             "subscription": {
+                 "active": false,
+                 "sender_id": "380517a3-7e29-5462-8367-3c12cc38bac0"
+            },
+            "format": "urn:x-nmos:format:mux",
+            "transport": "urn:x-nmos:transport:rtp.ucast",
+            "interface_bindings": ["eth3"],
+            "device_id": "b737d891-d937-271a-bb12-79846441d7d7",
+            "caps": [
+                "video/SMPTE2022-6"
+            ],
+            "tags": {},
+            "id": "6e5d5ae8-cff5-551f-868c-26569fee055a",
+            "description": "A longer string describing thing"
+        },
+        {
+            "label": "String Name",
+            "version": "2134:216",
+            "subscription": {
+                "active": false,
+                "sender_id": "2e32c9a8-f926-5f83-b678-e3aa88278d4d"
+            },
+            "format": "urn:x-nmos:format:data",
+            "transport": "urn:x-nmos:transport:dash",
+            "interface_bindings": [
+                "eth3",
+                "eth8"
+            ],
+            "device_id": "365b7519-5196-3919-8308-d45eadf3db46",
+            "caps": ["video/smpte291"],
+            "tags": {},
+            "id": "2238a8b8-7052-3206-9008-88c8b772aa95",
+            "description": "A longer string describing thing"
+        },
+        {
+            "label": "String Name",
+            "version": "1677649000813:82828714738227724977281122",
+            "subscription": {
+                "active": false,
+                "sender_id": "5a2d2318-7219-5e8f-89f7-f6a0e93cced8"
+            },
+            "format": "urn:x-nmos:format:data",
+            "transport": "urn:x-nmos:transport:dash",
+            "interface_bindings": ["eth6"],
+            "device_id": "3fbf5477-d01a-4474-a9e2-dcd6dedb2f39",
+            "caps": ["video/smpte291"],
+            "tags": {}, "id": "caf17ed7-455e-4f0c-add6-aec0024bfa3b",
+            "description": "A longer string describing thing"
+        },
+        {
+            "label": "String Name",
+            "version": "12473:523",
+            "subscription": {
+                "active": false,
+                "sender_id": "2cb29726-ff9c-1d39-8faa-e87740c4c3c2"
+            },
+            "format": "urn:x-nmos:format:audio",
+            "transport": "urn:x-nmos:transport:rtp",
+            "interface_bindings": [
+                "eth0",
+                "eth1",
+                "eth2",
+                "eth4",
+                "eth5"
+            ],
+            "device_id": "be560646-6c6e-552c-994e-49d9a21f19c0",
+            "caps": [
+                "audio/L8",
+                "audio/L20"
+            ],
+            "tags": {},
+            "id": "d87c2bce-e9bd-2fbc-a08f-b1c42c92d1f7",
+            "description": "A longer string describing thing"
+        }
     ]
 }

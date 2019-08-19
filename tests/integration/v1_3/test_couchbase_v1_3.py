@@ -48,7 +48,7 @@ IPS_TYPE_SINGULAR = {
     "receivers": 'receiver'
 }
 
-RESOURCE_TYPES = ['nodes', 'sources', 'flows', 'devices', 'senders'] # + receivers
+RESOURCE_TYPES = ['nodes', 'sources', 'flows', 'devices', 'senders', 'receivers']
 
 def _initialise_cluster(host, port, bucket, username, password):
     # Initialize node
