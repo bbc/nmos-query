@@ -187,6 +187,7 @@ class TestCouchbase(ExtendedTestCase):
 
         try:
             self.test_bucket_manager.n1ql_index_create('test-bucket-primary-index', primary=True)
+            self.test_bucket_manager.n1ql_index_create('test-bucket-update-index', fields=['meta().xattrs.lastUpdated'])
             # TODO: secondary indices for performance and verification
         except couchbase.exceptions.KeyExistsError:
             pass
