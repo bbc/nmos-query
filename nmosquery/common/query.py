@@ -24,7 +24,7 @@ import copy # noqa E402
 from six import string_types # noqa E402
 
 from nmoscommon.logger import Logger # noqa E402
-from nmoscommon.utils import downgrade_api_version # noqa E402
+from nmoscommon.utils import translate_api_version # noqa E402
 
 from ..util import translate_resourcetypes, get_resourcetypes # noqa E402
 from .. import VALID_TYPES # noqa E402
@@ -89,7 +89,7 @@ class QueryCommon(object):
                     json_repr = None
                     if resource_type != "":
                         json_repr = json.loads(v)
-                        json_repr = downgrade_api_version(
+                        json_repr = translate_api_version(
                             copy.deepcopy(json_repr),
                             resource_type,
                             self.api_version, downgrade_ver
@@ -233,13 +233,13 @@ class QueryCommon(object):
             if socket.params and "query.downgrade" in socket.params:
                 downgrade_ver = socket.params["query.downgrade"]
 
-            socket_post_obj = downgrade_api_version(
+            socket_post_obj = translate_api_version(
                 copy.deepcopy(post_obj),
                 event.topic.replace("/", ""),
                 self.api_version, downgrade_ver
             )
 
-            socket_pre_obj = downgrade_api_version(
+            socket_pre_obj = translate_api_version(
                 copy.deepcopy(pre_obj),
                 event.topic.replace("/", ""),
                 self.api_version, downgrade_ver
@@ -276,7 +276,7 @@ class QueryCommon(object):
             if socket.params and "query.downgrade" in socket.params:
                 downgrade_ver = socket.params["query.downgrade"]
 
-            socket_pre_obj = downgrade_api_version(
+            socket_pre_obj = translate_api_version(
                 copy.deepcopy(pre_obj),
                 event.topic.replace("/", ""),
                 self.api_version, downgrade_ver
