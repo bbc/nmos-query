@@ -90,7 +90,7 @@ class QueryCommon(object):
                     if resource_type != "":
                         json_repr = json.loads(v)
                         json_repr = translate_api_version(
-                            copy.deepcopy(json_repr),
+                            json_repr,
                             resource_type,
                             self.api_version, downgrade_ver
                         )
@@ -234,13 +234,13 @@ class QueryCommon(object):
                 downgrade_ver = socket.params["query.downgrade"]
 
             socket_post_obj = translate_api_version(
-                copy.deepcopy(post_obj),
+                post_obj,
                 event.topic.replace("/", ""),
                 self.api_version, downgrade_ver
             )
 
             socket_pre_obj = translate_api_version(
-                copy.deepcopy(pre_obj),
+                pre_obj,
                 event.topic.replace("/", ""),
                 self.api_version, downgrade_ver
             )
@@ -277,7 +277,7 @@ class QueryCommon(object):
                 downgrade_ver = socket.params["query.downgrade"]
 
             socket_pre_obj = translate_api_version(
-                copy.deepcopy(pre_obj),
+                pre_obj,
                 event.topic.replace("/", ""),
                 self.api_version, downgrade_ver
             )
