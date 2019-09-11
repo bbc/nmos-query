@@ -46,7 +46,7 @@ package_names = packages.keys()
 # REMEMBER: If this list is updated, please also update stdeb.cfg and the RPM specfile
 packages_required = [
     "gevent>=1.2.2",
-    "nmoscommon",
+    "nmoscommon>=0.19.14",
     "flask>=0.10.1",
     "cysystemd",
     "ws4py>=0.3.4",
@@ -56,7 +56,7 @@ packages_required = [
 
 setup(
     name="registryquery",
-    version="0.7.7",
+    version="0.7.8",
     description="BBC implementation of an AMWA NMOS Query API",
     url='https://github.com/bbc/nmos-query',
     author='Peter Brightwell',

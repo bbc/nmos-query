@@ -20,7 +20,7 @@ import json
 import six
 
 from nmosquery.common.query import QueryCommon, reg
-from nmosquery import version_transforms
+from nmoscommon.utils import translate_api_version
 
 import copy
 
@@ -231,9 +231,9 @@ def remove_at_keys(data):
     return data
 
 """Generate a set of versioned versions of the resource data to compare against returns from the code"""
-flow_data_versions = { v : remove_at_keys(version_transforms.convert(copy.deepcopy(flow_data), "flows", v)) for v in API_VERSIONS }
-flow_v1_0_data_versions = { v : remove_at_keys(version_transforms.convert(copy.deepcopy(flow_v1_0_data), "flows", v, "v1.0")) for v in API_VERSIONS }
-sender_data_versions = { v : remove_at_keys(version_transforms.convert(copy.deepcopy(sender_data), "senders", v)) for v in API_VERSIONS }
+flow_data_versions = { v : remove_at_keys(translate_api_version(copy.deepcopy(flow_data), "flows", v)) for v in API_VERSIONS }
+flow_v1_0_data_versions = { v : remove_at_keys(translate_api_version(copy.deepcopy(flow_v1_0_data), "flows", v, "v1.0")) for v in API_VERSIONS }
+sender_data_versions = { v : remove_at_keys(translate_api_version(copy.deepcopy(sender_data), "senders", v)) for v in API_VERSIONS }
 
 class TestQueryCommon(unittest.TestCase):
 

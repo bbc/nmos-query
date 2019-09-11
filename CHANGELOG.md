@@ -1,5 +1,8 @@
 # NMOS Query API Implementation Changelog
 
+## 0.7.8
+- Add api downgrade function from nmoscommon
+
 ## 0.7.7
 - Add `api_auth` text record to multicast announcements
 

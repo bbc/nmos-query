@@ -13,14 +13,14 @@
 # limitations under the License.
 
 import json
-
 from functools import wraps
-from nmoscommon.webapi import on_json, route
 from flask import request, abort
 from socket import error as socket_error
+
+from nmoscommon.webapi import on_json, route
+from nmoscommon.auth.nmos_auth import RequiresAuth
 from nmosquery import VALID_TYPES
 from nmosquery.common.query import QueryCommon
-from nmoscommon.auth.nmos_auth import RequiresAuth
 from ..config import config
 
 OAUTH_MODE = config.get('oauth_mode', False)
