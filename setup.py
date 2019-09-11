@@ -46,7 +46,7 @@ package_names = packages.keys()
 # REMEMBER: If this list is updated, please also update stdeb.cfg and the RPM specfile
 packages_required = [
     "gevent>=1.2.2",
-    "nmoscommon>=0.19.13",
+    "nmoscommon>=0.19.14",
     "flask>=0.10.1",
     "cysystemd",
     "ws4py>=0.3.4",
