@@ -71,9 +71,10 @@ class QuerySocketCommon(object):
 
 
 class QuerySocketsCommon(object):
-    def __init__(self, ws_port, logger=None):
+    def __init__(self, ws_port, api_version="v1.0", logger=None):
         # NB. the 'sockets' here aren't really sockets, but 'QuerySocket' instances from above.
         self.sockets = []
+        self.api_version = api_version
         self.logger = logger
         self.ws_port = ws_port
 
@@ -87,8 +88,7 @@ class QuerySocketsCommon(object):
             params=opts.get('params', {}),
             secure=opts.get('secure', False),
             logger=self.logger,
-            api_version=opts.get('api_version', 'v1.0')
-        )
+            api_version=opts.get('api_version', self.api_version))
         self.sockets.append(sock)
         self.logger.writeDebug('Number of active sockets: {}'.format(len(self.sockets)))
         return sock
