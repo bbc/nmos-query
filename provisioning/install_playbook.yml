@@ -1,0 +1,7 @@
+---
+# Provision base image
+- name: Provision NMOS Query server
+  hosts: query
+  become: yes
+  roles: 
+    - nmos-query-setup
