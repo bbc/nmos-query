@@ -46,3 +46,40 @@ class ExtendedTestCase(TestCase):
                                     expected_list_as_dict[item[item_key]][value_key], msg=message)
                 except Exception as e:
                     self.fail('{} - {}'.format(message, e))
+
+    def assertDictsMostlyEqual(
+        self,
+        actual_dict,
+        expected_dict,
+        fuzzy_keys=[],
+        ignored_keys=[]
+    ):
+        """Give two dictionaries, compare the dictionaries, permitting specific keys
+        to be almost equal and other specific keys to be ignored entirely.
+        Args:
+            actual_dict: The first dict to compare
+            expected_dict: The second dict to compare
+            fuzzy_keys: A list of specific keys to only compare for near-equality
+            ignored_keys: A list of keys that are not compared at all (e.g., to be
+                          examined separately)
+        """
+        all_keys = list(expected_dict.keys())
+        for key in all_keys:
+            if ignored_keys.count(key) > 0:
+                continue
+            elif fuzzy_keys.count(key) > 0:
+                try:
+                    if len(expected_dict[key].pattern) > 0:
+                        self.assertGreater(len(expected_dict[key].findall(actual_dict[key])), 0)
+                except AttributeError:
+                    try:
+                        self.assertAlmostEqual(actual_dict[key], expected_dict[key], msg='Key {} is not almost equal'.format(key))
+                    except KeyError:
+                        self.fail(msg='Actual result does not contain key `{}`'.format(key))
+                except KeyError:
+                    self.fail(msg='Actual result does not contain key `{}`'.format(key))
+            else:
+                try:
+                    self.assertEqual(actual_dict[key], expected_dict[key], msg='Key {} is not equal'.format(key))
+                except KeyError:
+                    self.fail(msg='Actual result does not contain key `{}`'.format(key))

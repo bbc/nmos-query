@@ -32,7 +32,7 @@ class CouchbaseInterface(object):
                 'name': bucket_name
             }
 
-    def _get_xattrs(self, key, xattrs, bucket):
+    def get_xattrs(self, key, xattrs, bucket):
         results = {}
         for xkey in xattrs:
             try:
@@ -44,9 +44,16 @@ class CouchbaseInterface(object):
     def get(self, rkey, bucket, resource_type=None):
         resource_doc = bucket['bucket'].get(rkey).value
 
-        if resource_type and self._get_xattrs(rkey, ['resource_type'], bucket)['resource_type'] !=  resource_type:
+        if resource_type and self.get_xattrs(rkey, ['resource_type'], bucket)['resource_type'] !=  resource_type:
             return (409, 'Resource for key {} does not match type {}'.format(rkey, resource_type))
         return resource_doc
+
+    def custom_query(self, output, query, bucket):
+        query = n1ql.N1QLQuery(
+            'SELECT {} from `{}` WHERE {}'.format(output, bucket['name'], query)
+        )
+
+        return [result[bucket['name']] for result in bucket['bucket'].n1ql_query(query)]
 
     def key_query(self, output, key, value, bucket):
         query = n1ql.N1QLQuery(

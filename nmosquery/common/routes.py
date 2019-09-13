@@ -42,9 +42,9 @@ class RoutesCommon(object):
         self.registry = registry
         if self.registry and self.registry.type and self.registry.type == 'couchbase':
             self.logger.writeDebug('couchbase registry')
-            self.query = None
+            self.query = QueryCommon(logger=self.logger, api_version=api_version, registry=self.registry)
         elif not query:
-            self.query = QueryCommon(logger=self.logger)
+            self.query = QueryCommon(logger=self.logger, api_version=api_version, registry=self.registry)
         else:
             self.query = query
         self.on_websocket_connect = self.websocket_opened

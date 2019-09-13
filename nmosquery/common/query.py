@@ -29,9 +29,12 @@ from nmoscommon.utils import translate_api_version # noqa E402
 from ..util import translate_resourcetypes, get_resourcetypes # noqa E402
 from .. import VALID_TYPES # noqa E402
 from ..changewatcher import ChangeWatcher # noqa E402
+from ..couchbasewatcher import CouchbaseWatcher
 from ..etcd_util import etcd_unpack # noqa E402
 from ..grainevent import GrainEvent # noqa E402
 from .querysockets import QuerySocketsCommon, QueryFilterCommon # noqa E402
+from ..version_transforms import convert # noqa E402
+from .. import IPS_TYPE_SINGULAR
 
 reg = {'host': 'localhost', 'port': 2379}
 WS_PORT = 8870
@@ -39,13 +42,19 @@ WS_PORT = 8870
 
 class QueryCommon(object):
 
-    def __init__(self, logger=None, api_version="v1.0"):
+    def __init__(self, logger=None, api_version="v1.0", registry=None):
         self.logger = Logger("regquery", _parent=logger)
+        self.api_version = api_version
         self.query_sockets = QuerySocketsCommon(WS_PORT, logger=self.logger)
+        # self.query_sockets = QuerySocketsCommon(WS_PORT, api_version=self.api_version, logger=self.logger)
+        self.registry = registry
 
         # there is a choice here: watch at specific top levels (if flat), or watch all data.
         # initially, watch all data - this may be less than ideal.
-        self.watcher = ChangeWatcher(reg['host'], reg['port'], handler=self, logger=self.logger)
+        if self.registry and self.registry.type == 'couchbase':
+            self.watcher = CouchbaseWatcher(self.registry, handler=self, logger=self.logger)
+        else:
+            self.watcher = ChangeWatcher(reg['host'], reg['port'], handler=self, logger=self.logger)
         self.watcher.start()
 
         self.api_version = api_version
@@ -156,6 +165,51 @@ class QueryCommon(object):
                         self.do_sdown(k, pre_obj, post_obj)
                 else:
                     self.logger.writeError("Invalid type '{}' in response.".format(restype))
+
+    def process_couchbase_update(self, post_doc, pre_doc, resource_type, api_version):
+        """
+        Process a response from a Couchbase query on lastUpdated and deleted meta buckets.
+        """
+        self.logger.writeDebug('process_couchbase_update {}'.format(self.api_version))
+        # self.logger.writeDebug('process_couchbase_update: Input docs: {}, {}'.format(post_doc, pre_doc))
+        event = GrainEvent()
+        event.source_id = self.gen_source_id()
+        event.topic = list(IPS_TYPE_SINGULAR.keys())[list(IPS_TYPE_SINGULAR.values()).index(resource_type)]
+        sockets = self.query_sockets.find_socks(path=event.topic, obj=post_doc, p_obj=pre_doc)  # Path almost certainly wrong
+        self.logger.writeDebug('process_couchbase_update: socs: {} with {} updates'.format(sockets, len(post_doc)))
+
+        if post_doc == pre_doc:
+            return
+
+        for socket in sockets:
+            self.logger.writeDebug('next ws ' + socket.ws_href)
+
+            downgrade_ver = None
+            if socket.params and 'query.downgrade' in socket.params:
+                downgrade_ver = socket.params['query.downgrade']
+
+            self.logger.writeDebug('API Version: {}, downgrade version: {}'.format(self.api_version, downgrade_ver))
+
+            socket_post_obj = convert(
+                copy.deepcopy(post_doc),
+                event.topic.replace("/", ""),  # Possibly redundant with alternate topic lookup
+                self.api_version, downgrade_ver,
+                actual_resource_version=api_version
+            )
+
+            socket_pre_obj = convert(
+                copy.deepcopy(pre_doc),
+                event.topic.replace("/", ""),  # Possibly redundant with alternate topic lookup
+                self.api_version, downgrade_ver,
+                actual_resource_version=api_version
+            )
+
+            # summarise here?
+
+            event.flow_id = socket.uuid
+            event.clearGrains()
+            event.addGrainFromObj(pre_obj=socket_pre_obj, post_obj=socket_post_obj)
+            socket.notify_subscribers(event.obj())
 
     # Queries
     # get data for supplied path
