@@ -15,8 +15,9 @@
 import gevent
 from nmoscommon.timestamp import Timestamp
 
-DEFAULT_START_INTERVAL = 15 # Probs should be config var, maybe accessed via registry object
+DEFAULT_START_INTERVAL = 15  # TODO: config var? maybe accessed via registry object
 POLL_RATE = 5
+
 
 class CouchbaseWatcher(gevent.Greenlet):
     def __init__(self, registry, handler, logger):
@@ -30,22 +31,21 @@ class CouchbaseWatcher(gevent.Greenlet):
     def _run(self):
         self.logger.writeDebug('couchbasewatcher: running')
         self.running = True
-        failures = 0
-        secs = [0, 1, 3, 10]  # This is not used
 
         current_time = Timestamp.get_time().to_nanosec()
         start_time = current_time - Timestamp(sec=(DEFAULT_START_INTERVAL * 60)).to_nanosec()
         while self.running:
             updated_resources = self.registry.custom_query(
-                '*',  # 'id',   # should return full documents?
+                '*',
                 'meta().xattrs.last_updated > {}'.format(start_time),
                 self.registry.buckets['registry']
             )  # use nmoscommon timestamp to determine date range
 
-
             for resource in updated_resources:
-                rtype = self.registry.get_xattrs(resource['id'], ['resource_type'], self.registry.buckets['registry'])['resource_type']
-                api_ver = self.registry.get_xattrs(resource['id'], ['api_version'], self.registry.buckets['registry'])['api_version']
+                rtype = self.registry.get_xattrs(resource['id'], ['resource_type'],
+                                                 self.registry.buckets['registry'])['resource_type']
+                api_ver = self.registry.get_xattrs(resource['id'], ['api_version'],
+                                                   self.registry.buckets['registry'])['api_version']
                 self.handler.process_couchbase_update(resource, {}, rtype, api_ver)
 
             start_time = Timestamp.get_time().to_nanosec()

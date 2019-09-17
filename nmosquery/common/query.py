@@ -13,6 +13,8 @@
 # limitations under the License.
 
 from gevent import monkey
+from ..couchbasewatcher import CouchbaseWatcher
+from .. import IPS_TYPE_SINGULAR
 monkey.patch_all()
 
 import json # noqa E402
@@ -29,12 +31,10 @@ from nmoscommon.utils import translate_api_version # noqa E402
 from ..util import translate_resourcetypes, get_resourcetypes # noqa E402
 from .. import VALID_TYPES # noqa E402
 from ..changewatcher import ChangeWatcher # noqa E402
-from ..couchbasewatcher import CouchbaseWatcher
 from ..etcd_util import etcd_unpack # noqa E402
 from ..grainevent import GrainEvent # noqa E402
 from .querysockets import QuerySocketsCommon, QueryFilterCommon # noqa E402
 from ..version_transforms import convert # noqa E402
-from .. import IPS_TYPE_SINGULAR
 
 reg = {'host': 'localhost', 'port': 2379}
 WS_PORT = 8870
@@ -169,13 +169,10 @@ class QueryCommon(object):
         """
         Process a response from a Couchbase query on lastUpdated and deleted meta buckets.
         """
-        self.logger.writeDebug('process_couchbase_update {}'.format(self.api_version))
-        # self.logger.writeDebug('process_couchbase_update: Input docs: {}, {}'.format(post_doc, pre_doc))
         event = GrainEvent()
         event.source_id = self.gen_source_id()
         event.topic = list(IPS_TYPE_SINGULAR.keys())[list(IPS_TYPE_SINGULAR.values()).index(resource_type)]
-        sockets = self.query_sockets.find_socks(path=event.topic, obj=post_doc, p_obj=pre_doc)  # Path almost certainly wrong
-        self.logger.writeDebug('process_couchbase_update: socs: {} with {} updates'.format(sockets, len(post_doc)))
+        sockets = self.query_sockets.find_socks(path=event.topic, obj=post_doc, p_obj=pre_doc)
 
         if post_doc == pre_doc:
             return

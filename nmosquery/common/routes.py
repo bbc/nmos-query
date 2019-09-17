@@ -34,6 +34,7 @@ IPS_TYPE_SINGULAR = {
     "receivers": 'receiver'
 }
 
+
 class RoutesCommon(object):
 
     def __init__(self, logger, config, registry, api_version="v1.0", query=None):
@@ -70,7 +71,8 @@ class RoutesCommon(object):
             elif key == "query.rql":
                 abort(501)
         if self.registry and self.registry.type == 'couchbase':
-            obj = self.registry.get_by_resource_type(IPS_TYPE_SINGULAR[ips_type], self.registry.buckets['registry'], request.args)
+            obj = self.registry.get_by_resource_type(IPS_TYPE_SINGULAR[ips_type], self.registry.buckets['registry'],
+                                                     request.args)
         else:
             obj = self.query.get_data_for_path('/{}'.format(ips_type), request.args)
         self.logger.writeDebug('obj {}'.format(obj))

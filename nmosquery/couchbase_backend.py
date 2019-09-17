@@ -17,6 +17,7 @@ import couchbase.exceptions
 import couchbase.subdocument as subdoc
 import couchbase.n1ql as n1ql
 
+
 class CouchbaseInterface(object):
     type = 'couchbase'
     port = None
@@ -44,7 +45,7 @@ class CouchbaseInterface(object):
     def get(self, rkey, bucket, resource_type=None):
         resource_doc = bucket['bucket'].get(rkey).value
 
-        if resource_type and self.get_xattrs(rkey, ['resource_type'], bucket)['resource_type'] !=  resource_type:
+        if resource_type and self.get_xattrs(rkey, ['resource_type'], bucket)['resource_type'] != resource_type:
             return (409, 'Resource for key {} does not match type {}'.format(rkey, resource_type))
         return resource_doc
 
