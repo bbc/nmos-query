@@ -17,6 +17,24 @@ Before installing this library please make sure you have installed the [NMOS Com
 sudo apt-get install etcd
 
 ```
+``
+
+The modern Couchbase datastore [requires some further steps](https://docs.couchbase.com/python-sdk/2.5/start-using-sdk.html). The Python package depends on the C `libcouchbase` SDK, installed on debian distributions as follows:
+
+```
+# Only needed during first-time setup:
+wget http://packages.couchbase.com/releases/couchbase-release/couchbase-release-1.0-6-amd64.deb
+sudo dpkg -i couchbase-release-1.0-6-amd64.deb
+# Will install or upgrade packages
+sudo apt-get update
+sudo apt-get install libcouchbase-dev libcouchbase2-bin build-essential
+```
+
+In addition `libsystemd-dev` is required to  be installed for `cysystemd`:
+
+```
+sudo apt install libsystemd-dev
+```
 
 Once all dependencies are satisfied run the following commands to install the API:
 
@@ -35,8 +53,20 @@ The native Query API configuration should consist of a JSON object in the file `
 *   **https_mode:** \[string\] Switches the API between HTTP and HTTPS operation. "disabled" indicates HTTP mode is in use, "enabled" indicates HTTPS mode is in use. Default: "disabled".
 *   **enable_mdns:** \[boolean\] Provides a mechanism to disable mDNS announcements in an environment where unicast DNS is preferred. Default: true.
 *   **oauth_mode:** \[boolean\] Switches the API between being secured using OAuth2 and not using authorization. Default: false.
+* **registry**: \[object\]
+  * **type**: \[string\] Defines whether the registry is an instance of etcd or Couchbase. Default: etcd.
+  * **hosts**: \[array\] An array of string IPs/URLs specifying a set of Couchbase Server instances (i.e., each node in a cluster).
+  * **port**: \[integer\] The host port of the Couchbase cluster nodes
+  * **username**: \[string\] The client username for authenticating against the Couchbase cluster.
+  * **password**: \[string\]The client password for authenticating against the Couchbase cluster.
+  * **buckets**: \[object\]
+    * **registry**: \[string\] The name of the primary bucket for storing/accessing resource documents.
+    * **meta**: \[string\] The name of the secondary bucket for storing/accessing metadata documents.
+* **resource_expiry**: \[integer\] The time after which a document will expire in the absence of any heartbeat. Default: 12.
 
-An example configuration file is shown below:
+Example configuration files are shown below:
+
+### etcd
 
 ```json
 {
@@ -44,6 +74,29 @@ An example configuration file is shown below:
   "https_mode": "enabled",
   "enable_mdns": false,
   "oauth_mode": true
+}
+```
+
+### Couchbase
+
+```json
+{
+    "priority": 100,
+    "https_mode": "disabled",
+    "enable_mdns": true,
+    "service_port": 8235,
+    "registry": {
+        "type": "couchbase",
+        "hosts": ["192.168.0.1", "192.168.0.2"],
+        "port": 8091,
+        "username": "nmos-admin",
+        "password": "ipstudio",
+        "buckets": {
+            "registry": "nmos-registry",
+            "meta": "nmos-registry-meta"
+        }
+    },
+    "resource_expiry": 12
 }
 ```
 
@@ -75,9 +128,19 @@ service = QueryService()
 service.run() # Runs forever
 ```
 
+### Local Development Datastore
+
+To run a local instance of Couchbase Server, the easiest approach is to run `docker-compose` in the `tests/` directory and run a test container. Some setup is required, either through a web GUI accessible via `http://[host]:8091` or POSTing the http requests specified in `_initialise_cluster()` within `test_couchbase` in `tests/v1_0/`.
+
 ## Tests
 
-Unit tests are provided.  Currently these have hard-coded dummy/example hostnames, IP addresses and UUIDs.  You will need to edit the Python files under nmos-query/test/ to suit your needs and then "make test". You will need to have [Python virtualenv](https://pypi.python.org/pypi/virtualenv) installed and in your system PATH.
+Unit and integration tests are provided.
+
+### Unit Tests
+ Currently these have hard-coded dummy/example hostnames, IP addresses and UUIDs.  You will need to edit the Python files under nmos-query/test/ to suit your needs and then "make test". You will need to have [Python virtualenv](https://pypi.python.org/pypi/virtualenv) installed and in your system PATH.
+
+### Integration Tests
+ These run against a containerised docker instance of a single-node Couchbase cluster (which is automatically provisioned when running associated test files/calling `make test`).
 
 ## Debian Packaging
 
