@@ -130,6 +130,8 @@ def _initialise_cluster(host, port, bucket, username, password):
                   }
                   )
 
+    time.sleep(5)
+
 
 def _put_xattrs(bucket, key, specific_xattrs, fill_defaults=True, timestamp=None):
     xattrs = {}
