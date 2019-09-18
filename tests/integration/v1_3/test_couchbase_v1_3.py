@@ -102,7 +102,7 @@ def _initialise_cluster(host, port, bucket, username, password):
                       'flushEnabled': 1,
                       'replicaNumber': 0,
                       'evictionPolicy': 'valueOnly',
-                      'ramQuotaMB': 1024,
+                      'ramQuotaMB': 2048,
                       'bucketType': 'couchbase',
                       'name': BUCKET_CONFIG['registry'],
                   }
@@ -114,7 +114,7 @@ def _initialise_cluster(host, port, bucket, username, password):
                       'flushEnabled': 1,
                       'replicaNumber': 0,
                       'evictionPolicy': 'valueOnly',
-                      'ramQuotaMB': 128,
+                      'ramQuotaMB': 512,
                       'bucketType': 'couchbase',
                       'name': BUCKET_CONFIG['meta'],
                   }
