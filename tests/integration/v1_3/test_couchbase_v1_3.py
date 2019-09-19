@@ -203,12 +203,16 @@ class TestCouchbase(ExtendedTestCase):
         cluster = Cluster('couchbase://{}'.format(host))
         auth = PasswordAuthenticator(TEST_USERNAME, TEST_PASSWORD)
         cluster.authenticate(auth)
-        self.test_bucket = cluster.open_bucket(BUCKET_CONFIG['registry']) # Probably not necessary to be self. Documents should be stored in advance and only reads should be via Query service
+        self.test_bucket = cluster.open_bucket(BUCKET_CONFIG['registry'])
         self.test_bucket_manager = self.test_bucket.bucket_manager()
+        self.test_meta_bucket = cluster.open_bucket(BUCKET_CONFIG['meta'])
+        self.test_meta_bucket_manager = self.test_meta_bucket.bucket_manager()
 
         try:
             self.test_bucket_manager.n1ql_index_create('test-bucket-primary-index', primary=True)
             self.test_bucket_manager.n1ql_index_create('test-bucket-update-index', fields=['meta().xattrs.lastUpdated'])
+            self.test_meta_bucket_manager.n1ql_index_create('test-meta-bucket-primary-index', primary=True)
+            self.test_meta_bucket_manager.n1ql_index_create('test-meta-bucket-update-index', fields=['meta().xattrs.lastUpdated'])
             # TODO: secondary indices for performance and verification
         except couchbase.exceptions.KeyExistsError:
             self.logger.writeError('setup: Failed to create couchbase indices - at least one index already exists')
@@ -311,6 +315,9 @@ class TestCouchbase(ExtendedTestCase):
             xx += 1
             print('waiting: {}'.format(xx))
 
+        if xx == MAX_WS_RETRIES:
+            self.fail(msg='Max wait exceeded by webxocket client')
+
         expected_grain = {
             'grain_type': 'event',
             'source_id': re.compile('^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'),
@@ -329,6 +336,60 @@ class TestCouchbase(ExtendedTestCase):
                                                         'sync_timestamp', 'creation_timestamp', 'rate', 'duration',
                                                         'grain']))
         self.assertDictEqual(ws.return_value['grain']['data'][0]['post'], new_node)
+        self.assertDictsMostlyEqual(ws.return_value, expected_grain, fuzzy_keys=['source_id', 'flow_id'], ignored_keys=['grain'])
+
+        ws.close()
+
+    def test_websocket_delete(self):
+        request_payload = {
+            'max_update_rate_ms': 100,
+            'persist': True,
+            'resource_path': '/nodes',
+            'params': {}
+        }
+        
+        new_node = doc_generator.generate_node()
+
+        port = requests.post(
+            'http://127.0.0.1:{}/x-nmos/query/{}/subscriptions'.format(AGGREGATOR_PORT, API_VERSION),
+            json=request_payload
+        )
+
+        ws = self.TestWebsocketClient('ws://127.0.0.1:{}/x-nmos'.format(AGGREGATOR_PORT) + port.json()['ws_href'].split('x-nmos')[1])
+        ws.connect()
+
+        create_timestamp = Timestamp.get_time().to_nanosec()
+
+        _put_doc(self.test_meta_bucket, new_node['id'], new_node, {'resource_type': 'node'}, ttl=0, logger=self.logger, timestamp=create_timestamp)
+
+        xx = 0
+
+        while (not ws.return_value or len(ws.return_value) == 0) and xx < MAX_WS_RETRIES:
+            time.sleep(1)
+            xx += 1
+            print('waiting: {}'.format(xx))
+
+        if xx == MAX_WS_RETRIES:
+            self.fail(msg='Max wait exceeded by webxocket client')
+
+        expected_grain = {
+            'grain_type': 'event',
+            'source_id': re.compile('^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'),
+            'flow_id': re.compile('^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'),
+            'origin_timestamp': '0:0',  # verify timestamp
+            'sync_timestamp': '0:0',  # verify timestamp
+            'creation_timestamp': '0:0',  # verify timestamp
+            'rate': {'numerator': 0, 'denominator': 1},
+            'duration': {'numerator': 0, 'denominator': 1},
+            'grain': []
+        }
+
+
+        self.assertEqual(len(ws.return_value['grain']['data']), 1)
+        self.assertListEqual(sorted(list(ws.return_value.keys())), sorted(['grain_type', 'source_id', 'flow_id', 'origin_timestamp',
+                                                        'sync_timestamp', 'creation_timestamp', 'rate', 'duration',
+                                                        'grain']))
+        self.assertDictEqual(ws.return_value['grain']['data'][0]['pre'], new_node)
         self.assertDictsMostlyEqual(ws.return_value, expected_grain, fuzzy_keys=['source_id', 'flow_id'], ignored_keys=['grain'])
 
         ws.close()

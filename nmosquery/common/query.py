@@ -165,7 +165,7 @@ class QueryCommon(object):
                 else:
                     self.logger.writeError("Invalid type '{}' in response.".format(restype))
 
-    def process_couchbase_update(self, post_doc, pre_doc, resource_type, api_version):
+    def process_couchbase_update(self, pre_doc, post_doc, resource_type, api_version):
         """
         Process a response from a Couchbase query on lastUpdated and deleted meta buckets.
         """

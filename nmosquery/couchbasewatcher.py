@@ -41,12 +41,27 @@ class CouchbaseWatcher(gevent.Greenlet):
                 self.registry.buckets['registry']
             )  # use nmoscommon timestamp to determine date range
 
-            for resource in updated_resources:
-                rtype = self.registry.get_xattrs(resource['id'], ['resource_type'],
+            updated_priors = self.registry.custom_query(
+                '*',
+                'meta().xattrs.last_updated > {}'.format(start_time),
+                self.registry.buckets['meta']
+            )
+
+            for post_resource in updated_resources:
+                rtype = self.registry.get_xattrs(post_resource['id'], ['resource_type'],
                                                  self.registry.buckets['registry'])['resource_type']
-                api_ver = self.registry.get_xattrs(resource['id'], ['api_version'],
+                api_ver = self.registry.get_xattrs(post_resource['id'], ['api_version'],
                                                    self.registry.buckets['registry'])['api_version']
-                self.handler.process_couchbase_update(resource, {}, rtype, api_ver)
+                try:
+                    pre_resource = list(item for item in updated_priors if item['id'] == post_resource['id'])[0]
+                    updated_priors.remove(pre_resource)
+                except IndexError:
+                    pre_resource = {}
+                self.handler.process_couchbase_update(pre_resource, post_resource, rtype, api_ver)
+
+            for pre_resource in updated_priors:
+
+                self.handler.process_couchbase_update(pre_resource, {}, rtype, api_ver)
 
             start_time = Timestamp.get_time().to_nanosec()
             gevent.sleep(POLL_RATE)
