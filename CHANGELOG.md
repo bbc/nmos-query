@@ -1,5 +1,8 @@
 # NMOS Query API Implementation Changelog
 
+## 0.7.9
+- Clean-up before stopping service thread
+
 ## 0.7.8
 - Add api downgrade function from nmoscommon
 
