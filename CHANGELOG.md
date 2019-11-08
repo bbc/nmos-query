@@ -1,5 +1,8 @@
 # NMOS Query API Implementation Changelog
 
+## 0.7.10
+- Alter executable to run using Python3, alter `stdeb` to replace python 2 package
+
 ## 0.7.9
 - Clean-up before stopping service thread
 
