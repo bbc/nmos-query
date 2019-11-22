@@ -45,7 +45,7 @@ def __http(addr, port, method, url, payload=None):
         conn.close()
 
 
-def put(key, value, ttl=None, port=4001):
+def put(key, value, ttl=None, port=2379):
     value = "value={}".format(value)
     if ttl:
         value += "&ttl={}".format(ttl)
@@ -53,5 +53,5 @@ def put(key, value, ttl=None, port=4001):
     return __http("localhost", port, "PUT", "/v2/keys{}".format(key), value)
 
 
-def delete(key, port=4001):
+def delete(key, port=2379):
     return __http("localhost", port, "DELETE", "/v2/keys{}?recursive=true".format(key))
