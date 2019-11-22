@@ -183,7 +183,7 @@ class EtcdEventQueue(object):
 
 if __name__ == '__main__':
 
-    q = EtcdEventQueue("localhost", 4001)
+    q = EtcdEventQueue("localhost", 2379)
     exist = set()
 
     for event in q.queue:

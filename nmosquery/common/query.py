@@ -33,7 +33,7 @@ from ..etcd_util import etcd_unpack # noqa E402
 from ..grainevent import GrainEvent # noqa E402
 from .querysockets import QuerySocketsCommon, QueryFilterCommon # noqa E402
 
-reg = {'host': 'localhost', 'port': 4001}
+reg = {'host': 'localhost', 'port': 2379}
 WS_PORT = 8870
 
 
