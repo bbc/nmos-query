@@ -1,5 +1,8 @@
 # NMOS Query API Implementation Changelog
 
+## 0.8.1
+- Add missing Location header for subscriptions
+
 ## 0.8.0
 - Use official etcd ports
 

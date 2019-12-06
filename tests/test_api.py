@@ -136,10 +136,13 @@ class TestQueryServiceAPI(unittest.TestCase):
         for v in API_VERSIONS:
             self.assertEqual(self.UUT.routes['/x-nmos/query/' + v + '/']['GET'][0](), (200, ["subscriptions/"] + [ ips_type + '/' for ips_type in VALID_TYPES ]))
 
-    def assert_route_returns_value(self, v, path, args, expected, request, method='GET'):
+    def assert_route_exists(self, path, method):
         self.assertIn(path, self.UUT.routes)
         self.assertIn(method, self.UUT.routes[path])
         self.assertGreater(len(self.UUT.routes), 0)
+
+    def assert_route_returns_value(self, v, path, args, expected, request, method='GET'):
+        self.assert_route_exists(path, method)
         rval = self.UUT.routes[path][method][0](*args)
         self.assertEqual(rval, expected, msg="""
 When checking the result of a """ + method + """ with path """ + path + """ the result is not as expected:
@@ -205,29 +208,40 @@ Expected:
                     self.UUT.routes['/x-nmos/query/' + v + '/<ips_type>/<el_id>/']['GET'][0](t, EL_ID)
                 abort.assert_called_once_with(404)
 
+    @mock.patch('nmosquery.common.routes.make_response')
     @mock.patch('nmosquery.common.routes.abort', side_effect=AbortException)
     @mock.patch('nmosquery.common.routes.request')
-    def test_subscriptions_post(self, request, abort):
+    def test_subscriptions_post(self, request, abort, make_response):
         request.method = "POST"
         data = { 'foo' : 'bar', 'baz' : [ 'boop', ] }
+        args = []
+        test_obj = {"foo": "bar", "id": "test"}
 
         for v in API_VERSIONS:
+            path = '/x-nmos/query/' + v + '/subscriptions'
+
             request.get_data = mock.MagicMock(return_value=json.dumps(data))
+            make_response.reset_mock()
+            make_response.return_value.headers = {}
             self.queries[v].post_ws_subscribers.reset_mock()
-            self.queries[v].post_ws_subscribers.return_value = (mock.sentinel.obj, True)
-            self.assert_route_returns_value(v, '/x-nmos/query/' + v + '/subscriptions', [], (201, mock.sentinel.obj), request, method="POST")
+            self.queries[v].post_ws_subscribers.return_value = (test_obj, True)
+            self.assert_route_exists(path, request.method)
+            self.UUT.routes[path][request.method][0](*args)
             self.queries[v].post_ws_subscribers.assert_called_once_with(data)
 
             request.get_data = mock.MagicMock(return_value=json.dumps(data))
+            make_response.reset_mock()
+            make_response.return_value.headers = {}
             self.queries[v].post_ws_subscribers.reset_mock()
-            self.queries[v].post_ws_subscribers.return_value = (mock.sentinel.obj, False)
-            self.assert_route_returns_value(v, '/x-nmos/query/' + v + '/subscriptions', [], (200, mock.sentinel.obj), request, method="POST")
+            self.queries[v].post_ws_subscribers.return_value = (test_obj, False)
+            self.assert_route_exists(path, request.method)
+            self.UUT.routes[path][request.method][0](*args)
             self.queries[v].post_ws_subscribers.assert_called_once_with(data)
 
             request.get_data = mock.MagicMock(return_value="{")
             abort.reset_mock()
             with self.assertRaises(AbortException):
-                self.UUT.routes['/x-nmos/query/' + v + '/subscriptions']['POST'][0]()
+                self.UUT.routes[path][request.method][0]()
             abort.assert_called_once_with(400, mock.ANY)
 
     @mock.patch('nmosquery.common.routes.abort', side_effect=AbortException)
