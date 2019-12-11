@@ -14,10 +14,10 @@
 
 import json
 from functools import wraps
-from flask import request, abort
+from flask import request, abort, make_response
 from socket import error as socket_error
 
-from nmoscommon.webapi import on_json, route
+from nmoscommon.webapi import on_json, route, jsonify
 from nmoscommon.auth.nmos_auth import RequiresAuth
 from nmosquery import VALID_TYPES
 from nmosquery.common.query import QueryCommon
@@ -85,7 +85,12 @@ class RoutesCommon(object):
             elif data["secure"] is False:
                 abort(400, "All subscriptions must be secure when operating with HTTPS")
         obj, created = self.query.post_ws_subscribers(data)
-        return (201 if created else 200, obj)
+        response = make_response(jsonify(obj), 201 if created else 200)
+        response.autocorrect_location_header = False
+        response.headers["Location"] = "/x-nmos/query/{}/subscriptions/{}".format(
+            self.api_version, obj["id"]
+        )
+        return response
 
     @route('/subscriptions/', methods=['GET'])
     def __subscriptions_get(self):
