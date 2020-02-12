@@ -51,12 +51,13 @@ packages_required = [
     "cysystemd",
     "ws4py>=0.3.4",
     "requests>=0.9.3",
-    "six"
+    "six",
+    "werkzeug>=0.14.1,<1.0.0"  # Echo pin from nmos-common to avoid Flask overriding it
 ]
 
 setup(
     name="registryquery",
-    version="0.8.1",
+    version="0.8.2",
     description="BBC implementation of an AMWA NMOS Query API",
     url='https://github.com/bbc/nmos-query',
     author='Peter Brightwell',

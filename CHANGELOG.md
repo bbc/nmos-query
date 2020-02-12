@@ -1,5 +1,8 @@
 # NMOS Query API Implementation Changelog
 
+## 0.8.2
+- Fix Werkzeug version pin from nmos-common
+
 ## 0.8.1
 - Add missing Location header for subscriptions
 
