@@ -63,7 +63,7 @@ RESOURCE_TYPES = ['nodes', 'sources', 'flows', 'devices', 'senders', 'receivers'
 
 def _initialise_cluster(host, port, bucket, username, password):
     # Initialize node
-    requests.post(
+    r = requests.post(
         'http://{0}:{1}/nodes/self/controller/settings'.format(host, port),
         auth=('Administrator', 'password'),
         data={
@@ -72,6 +72,7 @@ def _initialise_cluster(host, port, bucket, username, password):
             'cbas_path': '/opt/couchbase/var/lib/couchbase/data',
         }
     )
+    print("First request status: {}".format(r.status_code))
     # Rename node
     requests.post(
         'http://{0}:{1}/node/controller/rename'.format(host, port),
@@ -81,13 +82,15 @@ def _initialise_cluster(host, port, bucket, username, password):
         }
     )
     # Setup services
-    requests.post(
+    r = requests.post(
         'http://{0}:{1}/node/controller/setupServices'.format(host, port),
         auth=requests.auth.HTTPBasicAuth('Administrator', 'password'),
         data={
             'services': 'kv,index,n1ql,fts',
         }
     )
+    print("Second request status: {}".format(r.status_code))
+
     # Setup admin username/password
     requests.post(
         'http://{0}:{1}/settings/web'.format(host, port),
@@ -197,7 +200,7 @@ class TestCouchbase(ExtendedTestCase):
 
     @classmethod
     def setUpClass(self):
-        self.couch_container = DockerCompose('{}/tests/integration/'.format(os.getcwd()))
+        self.couch_container = DockerCompose('{}/tests/'.format(os.getcwd()))
         self.couch_container.start()
         self.couch_container.wait_for('http://localhost:{}'.format(COUCHBASE_PORT))
         self.logger = Logger('CouchbaseTest')

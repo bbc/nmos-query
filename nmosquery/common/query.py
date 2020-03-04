@@ -13,8 +13,6 @@
 # limitations under the License.
 
 from gevent import monkey
-from ..couchbasewatcher import CouchbaseWatcher
-from .. import IPS_TYPE_SINGULAR
 monkey.patch_all()
 
 import json # noqa E402
@@ -28,16 +26,26 @@ from six import string_types # noqa E402
 from nmoscommon.logger import Logger # noqa E402
 from nmoscommon.utils import translate_api_version # noqa E402
 
+from ..couchbasewatcher import CouchbaseWatcher
 from ..util import translate_resourcetypes, get_resourcetypes # noqa E402
-from .. import VALID_TYPES # noqa E402
 from ..changewatcher import ChangeWatcher # noqa E402
 from ..etcd_util import etcd_unpack # noqa E402
 from ..grainevent import GrainEvent # noqa E402
 from .querysockets import QuerySocketsCommon, QueryFilterCommon # noqa E402
-from ..version_transforms import convert # noqa E402
 
 reg = {'host': 'localhost', 'port': 2379}
 WS_PORT = 8870
+
+IPS_TYPE_SINGULAR = {
+    "flows": "flow",
+    "sources": 'source',
+    "nodes": 'node',
+    "devices": 'device',
+    "senders": 'sender',
+    "receivers": 'receiver'
+}
+
+VALID_TYPES = list(IPS_TYPE_SINGULAR.keys())
 
 
 class QueryCommon(object):
@@ -186,18 +194,16 @@ class QueryCommon(object):
 
             self.logger.writeDebug('API Version: {}, downgrade version: {}'.format(self.api_version, downgrade_ver))
 
-            socket_post_obj = convert(
+            socket_post_obj = translate_api_version(
                 copy.deepcopy(post_doc),
                 event.topic.replace("/", ""),  # Possibly redundant with alternate topic lookup
-                self.api_version, downgrade_ver,
-                actual_resource_version=api_version
+                self.api_version, downgrade_ver
             )
 
-            socket_pre_obj = convert(
+            socket_pre_obj = translate_api_version(
                 copy.deepcopy(pre_doc),
                 event.topic.replace("/", ""),  # Possibly redundant with alternate topic lookup
-                self.api_version, downgrade_ver,
-                actual_resource_version=api_version
+                self.api_version, downgrade_ver
             )
 
             # summarise here?

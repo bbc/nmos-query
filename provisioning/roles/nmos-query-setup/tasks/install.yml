@@ -13,7 +13,7 @@
     update_cache: yes
     state: present
 
-- name: Install cocuhbase release
+- name: Install couchbase release
   apt:
     deb: '/vagrant/couchbase-release-1.0-6-amd64.deb'
 
