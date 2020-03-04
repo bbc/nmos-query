@@ -12,26 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-import unittest
-import requests
-import json
-# from couchbase.cluster import Cluster, PasswordAuthenticator
-# import couchbase.subdocument as subdoc
-from testcontainers.compose import DockerCompose
-import couchbase.exceptions
-from couchbase.cluster import Cluster, PasswordAuthenticator
-import couchbase.subdocument as subdoc
-from nmoscommon.timestamp import Timestamp
-from nmoscommon.logger import Logger
 import os
 import re
 import time
+import requests
+import json
+import polling
+import couchbase.subdocument as subdoc
+import couchbase.exceptions
+from couchbase.cluster import Cluster, PasswordAuthenticator
+from ws4py.client.threadedclient import WebSocketClient
+from testcontainers.compose import DockerCompose
 
+from nmoscommon.timestamp import Timestamp
+from nmoscommon.logger import Logger
+from nmosquery.service import QueryService
 from tests.integration.helpers import util
 from tests.integration.helpers.extended_test_case import ExtendedTestCase
-from nmosquery.service import QueryService
-from ws4py.client.threadedclient import WebSocketClient
 from tests.helpers import doc_generator
 
 BUCKET_NAME = 'nmos-test'
@@ -44,9 +41,10 @@ TEST_PASSWORD = 'password'
 
 MAX_WS_RETRIES = 15
 DEFAULT_START_INTERVAL = 15
+TIMEOUT = 2
 
 AGGREGATOR_PORT = 8870
-
+COUCHBASE_PORT = 8091
 API_VERSION = 'v1.2'
 
 DUMMY_RESOURCES = util.json_fixture("dummy_data/example.json")
@@ -62,73 +60,81 @@ IPS_TYPE_SINGULAR = {
 
 RESOURCE_TYPES = ['nodes', 'sources', 'flows', 'devices', 'senders', 'receivers']
 
+
 def _initialise_cluster(host, port, bucket, username, password):
     # Initialize node
-    requests.post('http://{0}:{1}/nodes/self/controller/settings'.format(host, port),
-                  auth=('Administrator', 'password'),
-                  data={
-                      'path': '/opt/couchbase/var/lib/couchbase/data',
-                      'index_path': '/opt/couchbase/var/lib/couchbase/data',
-                      'cbas_path': '/opt/couchbase/var/lib/couchbase/data',
-                  }
-                  )
+    requests.post(
+        'http://{0}:{1}/nodes/self/controller/settings'.format(host, port),
+        auth=('Administrator', 'password'),
+        data={
+            'path': '/opt/couchbase/var/lib/couchbase/data',
+            'index_path': '/opt/couchbase/var/lib/couchbase/data',
+            'cbas_path': '/opt/couchbase/var/lib/couchbase/data',
+        }
+    )
     # Rename node
-    requests.post('http://{0}:{1}/node/controller/rename'.format(host, port),
-                  auth=requests.auth.HTTPBasicAuth('Administrator', 'password'),
-                  data={
-                      'hostname': '127.0.0.1',
-                  }
-                  )
+    requests.post(
+        'http://{0}:{1}/node/controller/rename'.format(host, port),
+        auth=requests.auth.HTTPBasicAuth('Administrator', 'password'),
+        data={
+            'hostname': '127.0.0.1',
+        }
+    )
     # Setup services
-    requests.post('http://{0}:{1}/node/controller/setupServices'.format(host, port),
-                  auth=requests.auth.HTTPBasicAuth('Administrator', 'password'),
-                  data={
-                      'services': 'kv,index,n1ql,fts',
-                  }
-                  )
+    requests.post(
+        'http://{0}:{1}/node/controller/setupServices'.format(host, port),
+        auth=requests.auth.HTTPBasicAuth('Administrator', 'password'),
+        data={
+            'services': 'kv,index,n1ql,fts',
+        }
+    )
     # Setup admin username/password
-    requests.post('http://{0}:{1}/settings/web'.format(host, port),
-                  auth=requests.auth.HTTPBasicAuth('Administrator', 'password'),
-                  data={
-                      'password': TEST_PASSWORD,
-                      'username': TEST_USERNAME,
-                      'port': port,
-                  }
-                  )
+    requests.post(
+        'http://{0}:{1}/settings/web'.format(host, port),
+        auth=requests.auth.HTTPBasicAuth('Administrator', 'password'),
+        data={
+            'password': TEST_PASSWORD,
+            'username': TEST_USERNAME,
+            'port': port,
+        }
+    )
     # Build registry bucket
-    requests.post('http://{0}:{1}/pools/default/buckets'.format(host, port),
-                  auth=requests.auth.HTTPBasicAuth(TEST_USERNAME, TEST_PASSWORD),
-                  data={
-                      'flushEnabled': 1,
-                      'replicaNumber': 0,
-                      'evictionPolicy': 'valueOnly',
-                      'ramQuotaMB': 1024,
-                      'bucketType': 'couchbase',
-                      'name': BUCKET_CONFIG['registry'],
-                  }
-                  )
+    requests.post(
+        'http://{0}:{1}/pools/default/buckets'.format(host, port),
+        auth=requests.auth.HTTPBasicAuth(TEST_USERNAME, TEST_PASSWORD),
+        data={
+            'flushEnabled': 1,
+            'replicaNumber': 0,
+            'evictionPolicy': 'valueOnly',
+            'ramQuotaMB': 1024,
+            'bucketType': 'couchbase',
+            'name': BUCKET_CONFIG['registry'],
+        }
+    )
     # Build meta bucket
-    requests.post('http://{0}:{1}/pools/default/buckets'.format(host, port),
-                  auth=requests.auth.HTTPBasicAuth(TEST_USERNAME, TEST_PASSWORD),
-                  data={
-                      'flushEnabled': 1,
-                      'replicaNumber': 0,
-                      'evictionPolicy': 'valueOnly',
-                      'ramQuotaMB': 128,
-                      'bucketType': 'couchbase',
-                      'name': BUCKET_CONFIG['meta'],
-                  }
-                  )
+    requests.post(
+        'http://{0}:{1}/pools/default/buckets'.format(host, port),
+        auth=requests.auth.HTTPBasicAuth(TEST_USERNAME, TEST_PASSWORD),
+        data={
+            'flushEnabled': 1,
+            'replicaNumber': 0,
+            'evictionPolicy': 'valueOnly',
+            'ramQuotaMB': 128,
+            'bucketType': 'couchbase',
+            'name': BUCKET_CONFIG['meta'],
+        }
+    )
     # Set indexer mode
-    requests.post('http://{0}:{1}/settings/indexes'.format(host, port),
-                  auth=requests.auth.HTTPBasicAuth(TEST_USERNAME, password),
-                  data={
-                  'indexerThreads': 0,
-                      'maxRollbackPoints': 5,
-                      'memorySnapshotInterval': 200,
-                      'storageMode': 'forestdb',
-                  }
-                  )
+    requests.post(
+        'http://{0}:{1}/settings/indexes'.format(host, port),
+        auth=requests.auth.HTTPBasicAuth(TEST_USERNAME, password),
+        data={
+            'indexerThreads': 0,
+            'maxRollbackPoints': 5,
+            'memorySnapshotInterval': 200,
+            'storageMode': 'forestdb',
+        }
+    )
 
     time.sleep(5)
 
@@ -155,10 +161,15 @@ def _put_doc(bucket, key, value, xattrs, fill_defaults=True, ttl=12, logger=None
     _put_xattrs(bucket, key, xattrs, fill_defaults, timestamp)
     bucket.touch(key, ttl=ttl)
 
+
 def _load_bucket(bucket, docs, load_time):
     for resource_type, subset in docs.items():
         for resource in subset:
-            _put_doc(bucket, resource['id'], resource, {'resource_type': IPS_TYPE_SINGULAR[resource_type], 'last_updated': load_time, 'created_at': load_time}, ttl=0)
+            _put_doc(
+                bucket, resource['id'], resource,
+                {'resource_type': IPS_TYPE_SINGULAR[resource_type], 'last_updated': load_time, 'created_at': load_time},
+                ttl=0
+            )
 
 
 def _get_xattrs(bucket, key, xattrs):
@@ -169,8 +180,6 @@ def _get_xattrs(bucket, key, xattrs):
         except couchbase.exceptions.SubdocPathNotFoundError:
             results[xkey] = None
     return results
-
-
 
 
 class TestCouchbase(ExtendedTestCase):
@@ -190,17 +199,23 @@ class TestCouchbase(ExtendedTestCase):
     def setUpClass(self):
         self.couch_container = DockerCompose('{}/tests/integration/'.format(os.getcwd()))
         self.couch_container.start()
-        self.couch_container.wait_for('http://localhost:8091')
+        self.couch_container.wait_for('http://localhost:{}'.format(COUCHBASE_PORT))
         self.logger = Logger('CouchbaseTest')
 
-        host = self.couch_container.get_service_host('couchbase', 8091)
-        port = self.couch_container.get_service_port('couchbase', 8091)
+        self.host = self.couch_container.get_service_host('couchbase', COUCHBASE_PORT)
+        self.port = self.couch_container.get_service_port('couchbase', COUCHBASE_PORT)
 
-        _initialise_cluster(host, port, BUCKET_NAME, TEST_USERNAME, TEST_PASSWORD)
+        _initialise_cluster(self.host, self.port, BUCKET_NAME, TEST_USERNAME, TEST_PASSWORD)
 
-        time.sleep(5)
+        # Poll for server coming up
+        polling.poll(
+            lambda: requests.get("http://{}:{}".format(self.host, self.port)).status_code == 200,
+            step=TIMEOUT,
+            timeout=TIMEOUT * 10,
+            ignore_exceptions=(requests.exceptions.ConnectionError)
+        )
 
-        cluster = Cluster('couchbase://{}'.format(host))
+        cluster = Cluster('couchbase://{}'.format(self.host))
         auth = PasswordAuthenticator(TEST_USERNAME, TEST_PASSWORD)
         cluster.authenticate(auth)
         self.test_bucket = cluster.open_bucket(BUCKET_CONFIG['registry'])
@@ -212,21 +227,23 @@ class TestCouchbase(ExtendedTestCase):
             self.test_bucket_manager.n1ql_index_create('test-bucket-primary-index', primary=True)
             self.test_bucket_manager.n1ql_index_create('test-bucket-update-index', fields=['meta().xattrs.lastUpdated'])
             self.test_meta_bucket_manager.n1ql_index_create('test-meta-bucket-primary-index', primary=True)
-            self.test_meta_bucket_manager.n1ql_index_create('test-meta-bucket-update-index', fields=['meta().xattrs.lastUpdated'])
+            self.test_meta_bucket_manager.n1ql_index_create(
+                'test-meta-bucket-update-index', fields=['meta().xattrs.lastUpdated'])
             # TODO: secondary indices for performance and verification
         except couchbase.exceptions.KeyExistsError:
             self.logger.writeError('setup: Failed to create couchbase indices - at least one index already exists')
             pass
 
-        self.load_time = Timestamp.get_time().to_nanosec() - Timestamp(sec=(DEFAULT_START_INTERVAL * 60 * 10)).to_nanosec()
+        self.load_time = Timestamp.get_time().to_nanosec() - Timestamp(
+            sec=(DEFAULT_START_INTERVAL * 60 * 10)).to_nanosec()
         _load_bucket(self.test_bucket, DUMMY_RESOURCES, self.load_time)
         time.sleep(DEFAULT_START_INTERVAL)  # TODO: Remove?
-        
+
         self.query = QueryService()
         self.query.config['registry'] = {
             "type": "couchbase",
-            "hosts": [host],
-            "port": port,
+            "hosts": [self.host],
+            "port": self.port,
             "username": TEST_USERNAME,
             "password": TEST_PASSWORD,
             "buckets": BUCKET_CONFIG
@@ -236,19 +253,29 @@ class TestCouchbase(ExtendedTestCase):
 
     def test_nodes(self):
         expected = [
-            {u"href": "http://127.0.0.1:1234/path",
-             u"id": u"efee1ab5-85f1-4ae3-b5d5-3ccc79ae76af", u"label": u"test_node", "services": []},
-            {u"href": "http://192.168.100.100:12345/",
-             u"id": u"007ff4e5-fe72-4c4b-b858-4c5f37dff946", u"label": u"hostname.example.com", "services": [{"type": "urn:x-nmos-opensourceprivatenamespace:service:pipelinemanager/v1.0"}]},
-            {u"href": u"http://127.0.0.1:1234/path",
-             u"id": u"90461aaa-a45a-48f0-ba2e-de51b45ce4ce", u"label": u"test_node", "services": [{"type": "urn:x-nmos-opensourceprivatenamespace:service:mdnsbridge/v1.0"}]}
+            {
+                u"href": "http://127.0.0.1:1234/path",
+                u"id": u"efee1ab5-85f1-4ae3-b5d5-3ccc79ae76af", u"label": u"test_node", "services": []
+            },
+            {
+                u"href": "http://192.168.100.100:12345/",
+                u"id": u"007ff4e5-fe72-4c4b-b858-4c5f37dff946", u"label": u"hostname.example.com", "services": [
+                    {"type": "urn:x-nmos-opensourceprivatenamespace:service:pipelinemanager/v1.0"}
+                ]
+            },
+            {
+                u"href": u"http://127.0.0.1:1234/path",
+                u"id": u"90461aaa-a45a-48f0-ba2e-de51b45ce4ce", u"label": u"test_node", "services": [
+                    {"type": "urn:x-nmos-opensourceprivatenamespace:service:mdnsbridge/v1.0"}
+                ]
+            }
         ]
 
         query_response = requests.get(
-            'http://127.0.0.1:{}/x-nmos/query/{}/nodes/'.format(AGGREGATOR_PORT, API_VERSION),
+            'http://{}:{}/x-nmos/query/{}/nodes/'.format(self.host, AGGREGATOR_PORT, API_VERSION),
         )
 
-        self.assertListOfDictsEqual(query_response.json(),  expected, 'id')
+        self.assertListOfDictsEqual(query_response.json(), expected, 'id')
 
     def test_get_node(self):
         expected = {u"href": "http://192.168.100.100:12345/",
@@ -256,8 +283,8 @@ class TestCouchbase(ExtendedTestCase):
                     "services": [{"type": "urn:x-nmos-opensourceprivatenamespace:service:pipelinemanager/v1.0"}]}
 
         query_response = requests.get(
-            'http://127.0.0.1:{}/x-nmos/query/{}/nodes/007ff4e5-fe72-4c4b-b858-4c5f37dff946'\
-                .format(AGGREGATOR_PORT, API_VERSION)
+            'http://{}:{}/x-nmos/query/{}/nodes/007ff4e5-fe72-4c4b-b858-4c5f37dff946'
+            .format(self.host, AGGREGATOR_PORT, API_VERSION)
         )
 
         self.assertDictEqual(query_response.json(), expected)
@@ -267,12 +294,16 @@ class TestCouchbase(ExtendedTestCase):
             expected = DUMMY_RESOURCES[rtype]
 
             query_response = requests.get(
-                'http://127.0.0.1:{}/x-nmos/query/{}/{}/'.format(
-                    AGGREGATOR_PORT, API_VERSION, rtype
+                'http://{}:{}/x-nmos/query/{}/{}/'.format(
+                    self.host, AGGREGATOR_PORT, API_VERSION, rtype
                 )
             )
 
-            self.assertListOfDictsEqual(query_response.json(), expected, 'id', message='Testing {} resource type'.format(IPS_TYPE_SINGULAR[rtype]))
+            self.assertListOfDictsEqual(
+                query_response.json(), expected, 'id', message='Testing {} resource type'.format(
+                    IPS_TYPE_SINGULAR[rtype]
+                )
+            )
 
     def test_get_wrong_type(self):
         expected = {u"href": "http://192.168.100.100:12345/",
@@ -280,8 +311,8 @@ class TestCouchbase(ExtendedTestCase):
                     "services": [{"type": "urn:x-nmos-opensourceprivatenamespace:service:pipelinemanager/v1.0"}]}
 
         query_response = requests.get(
-            'http://127.0.0.1:{}/x-nmos/query/{}/flows/007ff4e5-fe72-4c4b-b858-4c5f37dff946'
-            .format(AGGREGATOR_PORT, API_VERSION)
+            'http://{}:{}/x-nmos/query/{}/flows/007ff4e5-fe72-4c4b-b858-4c5f37dff946'
+            .format(self.host, AGGREGATOR_PORT, API_VERSION)
         )
 
         self.assertEqual(query_response.status_code, 409)
@@ -293,20 +324,25 @@ class TestCouchbase(ExtendedTestCase):
             'resource_path': '/nodes',
             'params': {}
         }
-        
+
         new_node = doc_generator.generate_node()
 
         port = requests.post(
-            'http://127.0.0.1:{}/x-nmos/query/{}/subscriptions'.format(AGGREGATOR_PORT, API_VERSION),
+            'http://{}:{}/x-nmos/query/{}/subscriptions'.format(self.host, AGGREGATOR_PORT, API_VERSION),
             json=request_payload
         )
 
-        ws = self.TestWebsocketClient('ws://127.0.0.1:{}/x-nmos'.format(AGGREGATOR_PORT) + port.json()['ws_href'].split('x-nmos')[1])
+        ws = self.TestWebsocketClient(
+            'ws://{}:{}/x-nmos'.format(self.host, AGGREGATOR_PORT) + port.json()['ws_href'].split('x-nmos')[1])
         ws.connect()
 
         create_timestamp = Timestamp.get_time().to_nanosec()
 
-        _put_doc(self.test_bucket, new_node['id'], new_node, {'resource_type': 'node'}, ttl=0, logger=self.logger, timestamp=create_timestamp)
+        _put_doc(
+            self.test_bucket, new_node['id'], new_node,
+            {'resource_type': 'node'}, ttl=0, logger=self.logger,
+            timestamp=create_timestamp
+        )
 
         xx = 0
 
@@ -330,13 +366,17 @@ class TestCouchbase(ExtendedTestCase):
             'grain': []
         }
 
-
         self.assertEqual(len(ws.return_value['grain']['data']), 1)
-        self.assertListEqual(sorted(list(ws.return_value.keys())), sorted(['grain_type', 'source_id', 'flow_id', 'origin_timestamp',
-                                                        'sync_timestamp', 'creation_timestamp', 'rate', 'duration',
-                                                        'grain']))
+        self.assertListEqual(
+            sorted(list(ws.return_value.keys())),
+            sorted([
+                'grain_type', 'source_id', 'flow_id', 'origin_timestamp',
+                'sync_timestamp', 'creation_timestamp', 'rate', 'duration', 'grain'
+            ])
+        )
         self.assertDictEqual(ws.return_value['grain']['data'][0]['post'], new_node)
-        self.assertDictsMostlyEqual(ws.return_value, expected_grain, fuzzy_keys=['source_id', 'flow_id'], ignored_keys=['grain'])
+        self.assertDictsMostlyEqual(
+            ws.return_value, expected_grain, fuzzy_keys=['source_id', 'flow_id'], ignored_keys=['grain'])
 
         ws.close()
 
@@ -347,20 +387,25 @@ class TestCouchbase(ExtendedTestCase):
             'resource_path': '/nodes',
             'params': {}
         }
-        
+
         new_node = doc_generator.generate_node()
 
         port = requests.post(
-            'http://127.0.0.1:{}/x-nmos/query/{}/subscriptions'.format(AGGREGATOR_PORT, API_VERSION),
+            'http://{}:{}/x-nmos/query/{}/subscriptions'.format(self.host, AGGREGATOR_PORT, API_VERSION),
             json=request_payload
         )
 
-        ws = self.TestWebsocketClient('ws://127.0.0.1:{}/x-nmos'.format(AGGREGATOR_PORT) + port.json()['ws_href'].split('x-nmos')[1])
+        ws = self.TestWebsocketClient(
+            'ws://{}:{}/x-nmos'.format(self.hostNAME, AGGREGATOR_PORT) + port.json()['ws_href'].split('x-nmos')[1])
         ws.connect()
 
         create_timestamp = Timestamp.get_time().to_nanosec()
 
-        _put_doc(self.test_meta_bucket, new_node['id'], new_node, {'resource_type': 'node'}, ttl=0, logger=self.logger, timestamp=create_timestamp)
+        _put_doc(
+            self.test_meta_bucket, new_node['id'], new_node,
+            {'resource_type': 'node'}, ttl=0, logger=self.logger,
+            timestamp=create_timestamp
+        )
 
         xx = 0
 
@@ -384,13 +429,16 @@ class TestCouchbase(ExtendedTestCase):
             'grain': []
         }
 
-
         self.assertEqual(len(ws.return_value['grain']['data']), 1)
-        self.assertListEqual(sorted(list(ws.return_value.keys())), sorted(['grain_type', 'source_id', 'flow_id', 'origin_timestamp',
-                                                        'sync_timestamp', 'creation_timestamp', 'rate', 'duration',
-                                                        'grain']))
+        self.assertListEqual(
+            sorted(list(ws.return_value.keys())),
+            sorted([
+                'grain_type', 'source_id', 'flow_id', 'origin_timestamp',
+                'sync_timestamp', 'creation_timestamp', 'rate', 'duration', 'grain'
+            ]))
         self.assertDictEqual(ws.return_value['grain']['data'][0]['pre'], new_node)
-        self.assertDictsMostlyEqual(ws.return_value, expected_grain, fuzzy_keys=['source_id', 'flow_id'], ignored_keys=['grain'])
+        self.assertDictsMostlyEqual(
+            ws.return_value, expected_grain, fuzzy_keys=['source_id', 'flow_id'], ignored_keys=['grain'])
 
         ws.close()
 
@@ -407,17 +455,24 @@ class TestCouchbase(ExtendedTestCase):
         post_node['href'] = 'https://www.youtube.com/watch?v=04mwN5Zjg5c'
 
         port = requests.post(
-            'http://127.0.0.1:{}/x-nmos/query/{}/subscriptions'.format(AGGREGATOR_PORT, API_VERSION),
+            'http://{}:{}/x-nmos/query/{}/subscriptions'.format(self.host, AGGREGATOR_PORT, API_VERSION),
             json=request_payload
         )
 
-        ws = self.TestWebsocketClient('ws://127.0.0.1:{}/x-nmos'.format(AGGREGATOR_PORT) + port.json()['ws_href'].split('x-nmos')[1])
+        ws = self.TestWebsocketClient(
+            'ws://{}:{}/x-nmos'.format(self.host, AGGREGATOR_PORT) + port.json()['ws_href'].split('x-nmos')[1])
         ws.connect()
 
         update_timestamp = Timestamp.get_time().to_nanosec()
 
-        _put_doc(self.test_bucket, post_node['id'], post_node, {'resource_type': 'node'}, ttl=0, logger=self.logger, timestamp=update_timestamp)
-        _put_doc(self.test_meta_bucket, pre_node['id'], pre_node, {'resource_type': 'node'}, ttl=0, logger=self.logger, timestamp=update_timestamp)
+        _put_doc(
+            self.test_bucket, post_node['id'], post_node,
+            {'resource_type': 'node'}, ttl=0, logger=self.logger, timestamp=update_timestamp
+        )
+        _put_doc(
+            self.test_meta_bucket, pre_node['id'], pre_node,
+            {'resource_type': 'node'}, ttl=0, logger=self.logger, timestamp=update_timestamp
+        )
 
         xx = 0
 
@@ -442,12 +497,16 @@ class TestCouchbase(ExtendedTestCase):
         }
 
         self.assertEqual(len(ws.return_value['grain']['data']), 1)
-        self.assertListEqual(sorted(list(ws.return_value.keys())), sorted(['grain_type', 'source_id', 'flow_id', 'origin_timestamp',
-                                                        'sync_timestamp', 'creation_timestamp', 'rate', 'duration',
-                                                        'grain']))
+        self.assertListEqual(
+            sorted(list(ws.return_value.keys())),
+            sorted([
+                'grain_type', 'source_id', 'flow_id', 'origin_timestamp',
+                'sync_timestamp', 'creation_timestamp', 'rate', 'duration', 'grain'
+            ]))
         self.assertDictEqual(ws.return_value['grain']['data'][0]['pre'], pre_node)
         self.assertDictEqual(ws.return_value['grain']['data'][0]['post'], post_node)
-        self.assertDictsMostlyEqual(ws.return_value, expected_grain, fuzzy_keys=['source_id', 'flow_id'], ignored_keys=['grain'])
+        self.assertDictsMostlyEqual(
+            ws.return_value, expected_grain, fuzzy_keys=['source_id', 'flow_id'], ignored_keys=['grain'])
 
         ws.close()
 

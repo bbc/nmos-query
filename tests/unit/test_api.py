@@ -20,6 +20,7 @@ import json
 from functools import wraps
 from socket import error as socket_error
 
+
 class WebAPIStub(object):
     """This is used to replace the WebAPI class so that QueryServiceAPI can inherit from it.
     It implements the bare bones version of what that class needs, ie. it executes self.add_routes(self,'')
