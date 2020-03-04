@@ -26,7 +26,7 @@ from six import string_types # noqa E402
 from nmoscommon.logger import Logger # noqa E402
 from nmoscommon.utils import translate_api_version # noqa E402
 
-from ..couchbasewatcher import CouchbaseWatcher
+from ..couchbasewatcher import CouchbaseWatcher # noqa E402
 from ..util import translate_resourcetypes, get_resourcetypes # noqa E402
 from ..changewatcher import ChangeWatcher # noqa E402
 from ..etcd_util import etcd_unpack # noqa E402
