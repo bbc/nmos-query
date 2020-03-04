@@ -396,7 +396,7 @@ class TestCouchbase(ExtendedTestCase):
         )
 
         ws = self.TestWebsocketClient(
-            'ws://{}:{}/x-nmos'.format(self.hostNAME, AGGREGATOR_PORT) + port.json()['ws_href'].split('x-nmos')[1])
+            'ws://{}:{}/x-nmos'.format(self.host, AGGREGATOR_PORT) + port.json()['ws_href'].split('x-nmos')[1])
         ws.connect()
 
         create_timestamp = Timestamp.get_time().to_nanosec()

@@ -20,6 +20,8 @@ import json
 from functools import wraps
 from socket import error as socket_error
 
+API_VERSIONS = ['v1.0', 'v1.1', 'v1.2', 'v1.3']
+
 
 class WebAPIStub(object):
     """This is used to replace the WebAPI class so that QueryServiceAPI can inherit from it.
@@ -40,7 +42,7 @@ class WebAPIStub(object):
                 bases += getbases(x)
             return bases
 
-        for klass in [cl.__class__,] + getbases(cl.__class__):
+        for klass in [cl.__class__, ] + getbases(cl.__class__):
             for name in klass.__dict__.keys():
                 value = getattr(cl, name)
                 if callable(value):
@@ -51,20 +53,21 @@ class WebAPIStub(object):
                         if basepath + getattr(value, 'route_path') not in self.routes:
                             self.routes[basepath + getattr(value, 'route_path')] = {}
                         for method in methods:
-                            self.routes[basepath + getattr(value, 'route_path')][method] = [ value, getattr(value, 'route_args'), getattr(value, 'route_kwargs') ]
+                            self.routes[basepath + getattr(value, 'route_path')][method] = [value, getattr(value, 'route_args'), getattr(value, 'route_kwargs')]
                     if hasattr(value, 'ws_path'):
                         methods = ["GET", "OPTIONS", "HEAD"]
                         ws_mock = mock.MagicMock(name='ws_for_' + basepath + getattr(value, 'ws_path'), side_effect=value)
                         @wraps(value)
                         def _call_though_mock(*args, **kwargs):
                             return ws_mock(*args, **kwargs)
-                        self.websockets[basepath + getattr(value, 'ws_path')] = [ cl.on_websocket_connect(_call_though_mock), ws_mock, getattr(value, 'ws_args'), getattr(value, 'ws_kwargs') ]
+                        self.websockets[basepath + getattr(value, 'ws_path')] = [cl.on_websocket_connect(_call_though_mock), ws_mock, getattr(value, 'ws_args'), getattr(value, 'ws_kwargs')]
 
     def __getattr__(self, name):
         return getattr(self.mock, name)
 
     def __setattr__(self, name, value):
         return setattr(self.mock, name, value)
+
 
 def _route(path, *args, **kwargs):
     """This is used to substitute for the route decorator, and works with the above base class."""
@@ -75,6 +78,7 @@ def _route(path, *args, **kwargs):
         return f
     return annotate_function
 
+
 def _on_json(path, *args, **kwargs):
     """This is used to substitute for the on_json decorator, and works with the above base class."""
     def annotate_function(f):
@@ -84,16 +88,17 @@ def _on_json(path, *args, **kwargs):
         return f
     return annotate_function
 
+
 with mock.patch('nmoscommon.webapi.WebAPI', WebAPIStub):
     with mock.patch('nmoscommon.webapi.route', side_effect=_route) as route:
         with mock.patch('nmoscommon.webapi.on_json', side_effect=_on_json) as on_json:
             from nmosquery.api import QueryServiceAPI
             from nmosquery import VALID_TYPES
 
+
 class AbortException(Exception):
     pass
 
-API_VERSIONS = ['v1.0', 'v1.1', 'v1.2', 'v1.3']
 
 class TestQueryServiceAPI(unittest.TestCase):
     @mock.patch('nmosquery.common.routes.QueryCommon')
@@ -102,20 +107,20 @@ class TestQueryServiceAPI(unittest.TestCase):
     @mock.patch('nmosquery.v1_2.routes.Query')
     @mock.patch('nmosquery.v1_3.routes.Query')
     def setUp(self, v1_3Query, v1_2Query, v1_1Query, v1_0Query, QueryCommon):
-        self.queries = {'v1.0' : v1_0Query.return_value,
-                        'v1.1' : v1_1Query.return_value,
-                        'v1.2' : v1_2Query.return_value,
-                        'v1.3' : v1_3Query.return_value,}
+        self.queries = {'v1.0': v1_0Query.return_value,
+                        'v1.1': v1_1Query.return_value,
+                        'v1.2': v1_2Query.return_value,
+                        'v1.3': v1_3Query.return_value,}
         self.logger = mock.MagicMock(name="logger")
         self.config = mock.MagicMock(dict)
         self.UUT = QueryServiceAPI(self.logger, self.config)
 
     def test_init(self):
-        self.assertIn('/',              self.UUT.routes)
+        self.assertIn('/', self.UUT.routes)
         self.assertEqual(self.UUT.routes['/']['GET'][1], ())
         self.assertEqual(self.UUT.routes['/']['GET'][2], {})
 
-        self.assertIn('/x-nmos/',       self.UUT.routes)
+        self.assertIn('/x-nmos/', self.UUT.routes)
         self.assertEqual(self.UUT.routes['/x-nmos/']['GET'][1], ())
         self.assertEqual(self.UUT.routes['/x-nmos/']['GET'][2], {})
 
