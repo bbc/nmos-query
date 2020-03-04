@@ -19,8 +19,7 @@ from socket import error as socket_error
 
 from nmoscommon.webapi import on_json, route, jsonify
 from nmoscommon.auth.nmos_auth import RequiresAuth
-from nmosquery import VALID_TYPES
-from nmosquery.common.query import QueryCommon
+from .query import QueryCommon, VALID_TYPES
 from ..config import config
 
 OAUTH_MODE = config.get('oauth_mode', False)
