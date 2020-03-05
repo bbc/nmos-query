@@ -17,7 +17,6 @@ import re
 import time
 import requests
 import json
-import polling
 import couchbase.subdocument as subdoc
 import couchbase.exceptions
 from couchbase.cluster import Cluster, PasswordAuthenticator
@@ -27,6 +26,7 @@ from testcontainers.compose import DockerCompose
 from nmoscommon.timestamp import Timestamp
 from nmoscommon.logger import Logger
 from nmosquery.service import QueryService
+from nmosquery.common.query import IPS_TYPE_SINGULAR, VALID_TYPES
 from tests.integration.helpers import util
 from tests.integration.helpers.extended_test_case import ExtendedTestCase
 from tests.helpers import doc_generator
@@ -41,24 +41,12 @@ TEST_PASSWORD = 'password'
 
 MAX_WS_RETRIES = 15
 DEFAULT_START_INTERVAL = 15
-TIMEOUT = 2
 
 AGGREGATOR_PORT = 8870
 COUCHBASE_PORT = 8091
 API_VERSION = 'v1.2'
 
 DUMMY_RESOURCES = util.json_fixture("dummy_data/example.json")
-
-IPS_TYPE_SINGULAR = {
-    "flows": "flow",
-    "sources": 'source',
-    "nodes": 'node',
-    "devices": 'device',
-    "senders": 'sender',
-    "receivers": 'receiver'
-}
-
-RESOURCE_TYPES = ['nodes', 'sources', 'flows', 'devices', 'senders', 'receivers']
 
 
 def _initialise_cluster(host, port, bucket, username, password):
@@ -139,8 +127,6 @@ def _initialise_cluster(host, port, bucket, username, password):
         }
     )
 
-    time.sleep(10)
-
 
 def _put_xattrs(bucket, key, specific_xattrs, fill_defaults=True, timestamp=None):
     xattrs = {}
@@ -205,12 +191,12 @@ class TestCouchbase(ExtendedTestCase):
         self.couch_container.wait_for('http://localhost:{}'.format(COUCHBASE_PORT))
 
         self.logger = Logger('CouchbaseTest')
-        self.host = self.couch_container.get_service_host('couchbase', COUCHBASE_PORT)
+        self.host = self.couch_container.get_service_host('couchbase', COUCHBASE_PORT)  # function returns 0.0.0.0
         self.port = self.couch_container.get_service_port('couchbase', COUCHBASE_PORT)
 
-        time.sleep(10)
-
         _initialise_cluster(self.host, self.port, BUCKET_NAME, TEST_USERNAME, TEST_PASSWORD)
+
+        time.sleep(10)  # TODO, properly wait for setup somehow, possible long poll?
 
         cluster = Cluster('couchbase://{}'.format(self.host))
         auth = PasswordAuthenticator(TEST_USERNAME, TEST_PASSWORD)
@@ -287,7 +273,7 @@ class TestCouchbase(ExtendedTestCase):
         self.assertDictEqual(query_response.json(), expected)
 
     def test_get_all_types(self):
-        for rtype in RESOURCE_TYPES:
+        for rtype in VALID_TYPES:
             expected = DUMMY_RESOURCES[rtype]
 
             query_response = requests.get(

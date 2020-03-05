@@ -1,8 +1,6 @@
 import requests
 import subprocess
 import polling
-
-from nmosquery.service import QueryService
 from nmosquery.config import config
 
 TIMEOUT = 2
@@ -120,7 +118,3 @@ polling.poll(
 # Initialise Cluster
 _initialise_cluster(host, port, bucket_config, username, password)
 print("Couchbase cluster is up and configured on Host: {} and Port: {}".format(host, port))
-
-# Bring up Query API
-query = QueryService()
-query.run()
