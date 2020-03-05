@@ -1,7 +1,6 @@
 import requests
 import subprocess
 import polling
-import time
 
 from nmosquery.service import QueryService
 from nmosquery.config import config
@@ -124,12 +123,4 @@ print("Couchbase cluster is up and configured on Host: {} and Port: {}".format(h
 
 # Bring up Query API
 query = QueryService()
-
-while True:
-    try:
-        query.run()
-    except KeyboardInterrupt:
-        break
-    except Exception:
-        print("Failed to run Query Service. Trying again...")
-        time.sleep(2)
+query.run()

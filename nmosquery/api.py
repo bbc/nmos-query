@@ -33,6 +33,8 @@ class QueryServiceAPI(WebAPI):
 
     def __init__(self, logger, config):
         super(QueryServiceAPI, self).__init__()
+        self.logger = logger
+        self.config = config
         if config['registry']['type'] == 'couchbase':
             registry = CouchbaseInterface(
                 cluster_address=config['registry']['hosts'],
@@ -42,8 +44,6 @@ class QueryServiceAPI(WebAPI):
             )
         else:
             registry = None
-        self.logger = logger
-        self.config = config
 
         self.api_v1_0 = v1_0.Routes(logger, config, registry)
         self.add_routes(self.api_v1_0, basepath="/{}/{}/v1.0".format(QUERY_APINAMESPACE, QUERY_APINAME))

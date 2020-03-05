@@ -93,7 +93,7 @@ with mock.patch('nmoscommon.webapi.WebAPI', WebAPIStub):
     with mock.patch('nmoscommon.webapi.route', side_effect=_route) as route:
         with mock.patch('nmoscommon.webapi.on_json', side_effect=_on_json) as on_json:
             from nmosquery.api import QueryServiceAPI
-            from nmosquery import VALID_TYPES
+            from nmosquery.common.query import VALID_TYPES
 
 
 class AbortException(Exception):

@@ -24,7 +24,7 @@ pipeline {
     parameters {
         booleanParam(name: "FORCE_PYUPLOAD", defaultValue: false, description: "Force Python artifact upload")
         booleanParam(name: "FORCE_DEBUPLOAD", defaultValue: false, description: "Force Debian package upload")
-        booleanParam(name: "DESTROY_VAGRANT", defaultValue: false, description: "Destroy Vagrant box before build?")
+        booleanParam(name: "DESTROY_VAGRANT", defaultValue: true, description: "Destroy Vagrant box before build?")
     }
     triggers {
         upstream (upstreamProjects: "apmm-repos/nmos-common/master")

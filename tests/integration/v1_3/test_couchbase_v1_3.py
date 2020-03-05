@@ -139,7 +139,7 @@ def _initialise_cluster(host, port, bucket, username, password):
         }
     )
 
-    time.sleep(5)
+    time.sleep(10)
 
 
 def _put_xattrs(bucket, key, specific_xattrs, fill_defaults=True, timestamp=None):
@@ -203,20 +203,14 @@ class TestCouchbase(ExtendedTestCase):
         self.couch_container = DockerCompose('{}/tests/'.format(os.getcwd()))
         self.couch_container.start()
         self.couch_container.wait_for('http://localhost:{}'.format(COUCHBASE_PORT))
-        self.logger = Logger('CouchbaseTest')
 
+        self.logger = Logger('CouchbaseTest')
         self.host = self.couch_container.get_service_host('couchbase', COUCHBASE_PORT)
         self.port = self.couch_container.get_service_port('couchbase', COUCHBASE_PORT)
 
-        _initialise_cluster(self.host, self.port, BUCKET_NAME, TEST_USERNAME, TEST_PASSWORD)
+        time.sleep(10)
 
-        # Poll for server coming up
-        polling.poll(
-            lambda: requests.get("http://{}:{}".format(self.host, self.port)).status_code == 200,
-            step=TIMEOUT,
-            timeout=TIMEOUT * 10,
-            ignore_exceptions=(requests.exceptions.ConnectionError)
-        )
+        _initialise_cluster(self.host, self.port, BUCKET_NAME, TEST_USERNAME, TEST_PASSWORD)
 
         cluster = Cluster('couchbase://{}'.format(self.host))
         auth = PasswordAuthenticator(TEST_USERNAME, TEST_PASSWORD)
