@@ -1,7 +1,9 @@
 import requests
 import subprocess
+import time
 import polling
 from nmosquery.config import config
+from nmosquery.service import QueryService
 
 TIMEOUT = 2
 
@@ -24,9 +26,11 @@ def get_query_config_data():
 
 def _initialise_cluster(host, port, bucket, username, password):
 
-    requests.get(
-        'http://127.0.0.1:8091/ui/index.html',
+    r = requests.get(
+        'http://{}:{}/ui/index.html'.format(host, port),
     )
+    r.raise_for_status()  # Check if Web Interface is up
+
     # Initialize node
     requests.post(
         'http://{0}:{1}/nodes/self/controller/settings'.format(host, port),
@@ -117,4 +121,19 @@ polling.poll(
 
 # Initialise Cluster
 _initialise_cluster(host, port, bucket_config, username, password)
-print("Couchbase cluster is up and configured on Host: {} and Port: {}".format(host, port))
+print("Couchbase cluster is up and configured on Host: {} and Port: {}".format(host, 1908))
+
+time.sleep(10)
+
+# Bring up Query API
+query = QueryService()
+print("Query API Service available on host: {} and port: {}".format(host, 7088))
+query.run()
+
+try:
+    print("Stopping API Service")
+    query.stop()
+    print("Killing Container")
+    subprocess.run(["docker kill $(docker ps -q)"], check=True, shell=True)
+except Exception as e:
+    print(e)
