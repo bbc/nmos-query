@@ -2,6 +2,9 @@ import requests
 import subprocess
 import time
 import polling
+import couchbase.exceptions
+
+from couchbase.cluster import Cluster, PasswordAuthenticator
 from nmosquery.config import config
 from nmosquery.service import QueryService
 
@@ -128,6 +131,23 @@ time.sleep(10)
 # Bring up Query API
 query = QueryService()
 print("Query API Service available on host: {} and port: {}".format(host, 7088))
+
+# Setup Indexes for databases
+cluster = Cluster('couchbase://{}'.format(host))
+auth = PasswordAuthenticator(username, password)
+cluster.authenticate(auth)
+test_bucket = cluster.open_bucket(bucket_config['registry'])
+test_bucket_manager = test_bucket.bucket_manager()
+test_meta_bucket = cluster.open_bucket(bucket_config['meta'])
+test_meta_bucket_manager = test_bucket.bucket_manager()
+
+try:
+    test_bucket_manager.n1ql_index_create('test-bucket-primary-index', primary=True)
+    test_meta_bucket_manager.n1ql_index_create('test-bucket-primary-index', primary=True)
+except couchbase.exceptions.KeyExistsError:
+    pass
+
+time.sleep(5)
 query.run()
 
 try:
