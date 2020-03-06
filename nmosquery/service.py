@@ -36,7 +36,6 @@ from nmoscommon.utils import getLocalIP # noqa E402
 from .api import QueryServiceAPI, QUERY_APIVERSIONS # noqa E402
 from .config import config  # noqa E402
 
-reg = {'host': 'localhost', 'port': 2379}
 HOST = getLocalIP()
 WS_PORT = 8870
 DNS_SD_HTTP_PORT = 80

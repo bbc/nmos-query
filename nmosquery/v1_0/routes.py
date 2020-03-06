@@ -19,5 +19,5 @@ from nmosquery.v1_0.query import Query
 
 class Routes(RoutesCommon):
     def __init__(self, logger, config, registry):
-        query = Query(logger=logger)
+        query = Query(logger=logger, registry=registry)
         super(Routes, self).__init__(logger, config, registry, "v1.0", query)

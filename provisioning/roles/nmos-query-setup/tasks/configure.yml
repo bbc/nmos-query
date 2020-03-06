@@ -1,0 +1,14 @@
+---
+
+- name: "Ensures {{ query_config_install_path }} dir exists"
+  file:
+    path: "{{ query_config_install_path }}"
+    state: directory
+
+- name: Create regquery config file
+  template:
+    src: templates/template.config.json.j2
+    dest: "{{ query_config_install_path }}/config.json"
+    owner: "{{ query_config_owner }}"
+    group: "{{ query_config_owner }}"
+    mode: 0644

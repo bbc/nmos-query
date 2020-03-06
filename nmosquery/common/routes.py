@@ -19,20 +19,10 @@ from socket import error as socket_error
 
 from nmoscommon.webapi import on_json, route, jsonify
 from nmoscommon.auth.nmos_auth import RequiresAuth
-from nmosquery import VALID_TYPES
-from nmosquery.common.query import QueryCommon
+from .query import QueryCommon, VALID_TYPES, IPS_TYPE_SINGULAR
 from ..config import config
 
 OAUTH_MODE = config.get('oauth_mode', False)
-
-IPS_TYPE_SINGULAR = {
-    "flows": "flow",
-    "sources": 'source',
-    "nodes": 'node',
-    "devices": 'device',
-    "senders": 'sender',
-    "receivers": 'receiver'
-}
 
 
 class RoutesCommon(object):
