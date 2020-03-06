@@ -128,10 +128,6 @@ print("Couchbase cluster is up and configured on Host: {} and Port: {}".format(h
 
 time.sleep(10)
 
-# Bring up Query API
-query = QueryService()
-print("Query API Service available on host: {} and port: {}".format(host, 7088))
-
 # Setup Indexes for databases
 cluster = Cluster('couchbase://{}'.format(host))
 auth = PasswordAuthenticator(username, password)
@@ -139,15 +135,22 @@ cluster.authenticate(auth)
 test_bucket = cluster.open_bucket(bucket_config['registry'])
 test_bucket_manager = test_bucket.bucket_manager()
 test_meta_bucket = cluster.open_bucket(bucket_config['meta'])
-test_meta_bucket_manager = test_bucket.bucket_manager()
+test_meta_bucket_manager = test_meta_bucket.bucket_manager()
 
 try:
     test_bucket_manager.n1ql_index_create('test-bucket-primary-index', primary=True)
-    test_meta_bucket_manager.n1ql_index_create('test-bucket-primary-index', primary=True)
+    test_bucket_manager.n1ql_index_create('test-bucket-update-index', fields=['meta().xattrs.lastUpdated'])
+    test_meta_bucket_manager.n1ql_index_create('test-meta-bucket-primary-index', primary=True)
+    test_meta_bucket_manager.n1ql_index_create(
+        'test-meta-bucket-update-index', fields=['meta().xattrs.lastUpdated'])
 except couchbase.exceptions.KeyExistsError:
     pass
 
 time.sleep(5)
+
+# Bring up Query API
+query = QueryService()
+print("Query API Service available on host: {} and port: {}".format(host, 7088))
 query.run()
 
 try:
