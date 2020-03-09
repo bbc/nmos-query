@@ -35,7 +35,7 @@ class QueryServiceAPI(WebAPI):
         super(QueryServiceAPI, self).__init__()
         self.logger = logger
         self.config = config
-        if config['registry']['type'] == 'couchbase':
+        if config.get('registry') and config['registry'].get('type') == 'couchbase':
             registry = CouchbaseInterface(
                 cluster_address=config['registry']['hosts'],
                 username=config['registry']['username'],

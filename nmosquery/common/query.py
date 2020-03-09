@@ -53,7 +53,7 @@ class QueryCommon(object):
     def __init__(self, logger=None, api_version="v1.0", registry=None):
         self.logger = Logger("regquery", _parent=logger)
         self.api_version = api_version
-        self.query_sockets = QuerySocketsCommon(WS_PORT, api_version=self.api_version, logger=self.logger)
+        self.query_sockets = QuerySocketsCommon(WS_PORT, logger=self.logger)
         self.registry = registry
 
         # there is a choice here: watch at specific top levels (if flat), or watch all data.
@@ -63,8 +63,6 @@ class QueryCommon(object):
         else:
             self.watcher = ChangeWatcher(reg['host'], reg['port'], handler=self, logger=self.logger)
         self.watcher.start()
-
-        self.api_version = api_version
 
     def _cleanup(self):
         self.watcher.stop()
