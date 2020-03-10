@@ -288,7 +288,7 @@ class TestQueryCommon(unittest.TestCase):
 
     @mock.patch('nmosquery.common.querysockets.getLocalIP', return_value="192.168.0.23")
     def test_get_ws_subscribers(self, getLocalIP):
-    
+
         def websocket_details(id, resource_path="", api_version="v1.0"):
             return {
                 "max_update_rate_ms": 100,
