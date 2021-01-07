@@ -1,5 +1,8 @@
 # NMOS Query API Implementation Changelog
 
+## 0.8.3
+- Replace RequiresAuth decorator with AuthMiddleware middleware
+
 ## 0.8.2
 - Fix Werkzeug version pin from nmos-common
 

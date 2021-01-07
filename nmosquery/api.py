@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from nmoscommon.webapi import WebAPI, route
+from nmoscommon.auth.auth_middleware import AuthMiddleware
 from nmoscommon.nmoscommonconfig import config as _config
 
 from .v1_0 import routes as v1_0
@@ -33,6 +34,10 @@ class QueryServiceAPI(WebAPI):
         super(QueryServiceAPI, self).__init__()
         self.logger = logger
         self.config = config
+
+        # Add Auth Middleware
+        oauth_mode = config.get('oauth_mode', False)
+        self.app.wsgi_app = AuthMiddleware(self.app.wsgi_app, auth_mode=oauth_mode, api_name=QUERY_APINAME)
 
         self.api_v1_0 = v1_0.Routes(logger, config)
         self.add_routes(self.api_v1_0, basepath="/{}/{}/v1.0".format(QUERY_APINAMESPACE, QUERY_APINAME))
